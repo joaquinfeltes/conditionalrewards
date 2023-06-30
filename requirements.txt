@@ -1,0 +1,7 @@
+numpy
+scipy
+cython
+pandas
+matplotlib
+
+# sgamesolver --install-option="--no-cython" --no-deps
