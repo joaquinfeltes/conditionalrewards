@@ -3,7 +3,7 @@
 # voy a hacer la clase del juego estocastico, una clase para cada nodo
 import numpy as np
 import random
-from Reverse_DFS import reverse_dfs
+from reverse_dfs import reverse_dfs
 
 PLAYER_1 = "Player 1"
 PLAYER_2 = "Player 2"
@@ -52,7 +52,7 @@ class StochasticGame:
         return state_list_for_reachability
 
     def solve_reachability(self, state_list):
-        state_list = self._set_game_for_reachability(state_list)
+        state_list = self._set_game_for_reachability(state_list) # not sure if I will need this
         reachability_strategies = Solver.solve_reachability(state_list, self.transition_matrix, self.final_states)
         return reachability_strategies
 
