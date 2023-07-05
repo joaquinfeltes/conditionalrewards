@@ -49,6 +49,7 @@ class StochasticGame:
             raise ValueError(f"Transition for state {idx} is not defined")
         return state_list
 
+        # I dont need this function
     # def _set_game_for_reachability(self, state_list):
     #     state_list_for_reachability = []
     #     for state in state_list:
@@ -57,15 +58,14 @@ class StochasticGame:
     #     return state_list_for_reachability
 
     def solve_reachability(self, state_list):
-        # I dont need this function
         # state_list = self._set_game_for_reachability(state_list)
-        reachability_strategies = Solver.solve_reachability(
+        reachability_strategies = Solver().solve_reachability(
             state_list=state_list,
               transition_matrix=self.transition_matrix, final_states=self.final_states)
         return reachability_strategies
 
     def solve_total_rewards(self, state_list, reachability_strategies):
-        final_strategies = Solver.solve_total_rewards(state_list=state_list, transition_matrix=self.transition_matrix, reachability_strategies=reachability_strategies)
+        final_strategies = Solver().solve_total_rewards(state_list=state_list, transition_matrix=self.transition_matrix, reachability_strategies=reachability_strategies)
         return final_strategies
 
     def solve(self):
@@ -235,17 +235,19 @@ class Solver:
         # Usando value iteration
         diff = 1
         while diff > self.threshold:
-            for state in reachable_states:
-                if state.player == PLAYER_1:
-                    state.reach_probability_next = state.value_iteration_reach_max(state_list)
-                if state.player == PLAYER_2:
-                    state.reach_probability_next = state.value_iteration_reach_min(state_list)
-                if state.player == PROBABILISTIC:
-                    state.reach_probability_next = state.value_iteration_reach(state_list)
+            for state_idx in reachable_states:
+                _state = state_list[state_idx]
+                if _state.player == PLAYER_1:
+                    _state.reach_probability_next = _state.value_iteration_reach_max(state_list)
+                if _state.player == PLAYER_2:
+                    _state.reach_probability_next = _state.value_iteration_reach_min(state_list)
+                if _state.player == PROBABILISTIC:
+                    _state.reach_probability_next = _state.value_iteration_reach(state_list)
             
-            diff = max([abs(state.reach_probability_next - state.reach_probability) for state in reachable_states])
-            for state in reachable_states:
-                state.reach_probability = state.reach_probability_next
+            diff = max([abs(state_list[state_idx].reach_probability_next - state_list[state_idx].reach_probability) for state_idx in reachable_states])
+            for state_idx in reachable_states:
+                _state = state_list[state_idx]
+                _state.reach_probability = _state.reach_probability_next
 
 
         reachability_strategies = self._get_reachability_strategies(state_list)
