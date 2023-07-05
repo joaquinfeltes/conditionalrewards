@@ -8,7 +8,12 @@ from reverse_dfs import reverse_dfs
 PLAYER_1 = "Player 1"
 PLAYER_2 = "Player 2"
 PROBABILISTIC = "Probabilistic"
-
+ACTION = 0
+PROBABILITY = 0
+NEXT_STATE_IDX = 1
+FIRST_PLAYER = 0
+SECOND_PLAYER = 1
+PROBABILISTIC_PLAYER = 2
 
 class StochasticGame:
     """A stochastic game, with two players,
@@ -18,26 +23,26 @@ class StochasticGame:
         self.reward_list = reward_list
         self.final_states = final_states
         self.transition_matrix = transition_matrix
-        self.num_states = len(self.transition_matrix[0])
+        self.num_states = len(self.transition_matrix[FIRST_PLAYER])
 
     def init_states(self):
         state_list = [None] * self.num_states
 
-        for state_n, transitions in enumerate(self.transition_matrix[0]):
+        for state_n, transitions in enumerate(self.transition_matrix[FIRST_PLAYER]):
             if transitions:
                 state_list[state_n] = PlayerNode(
-                    player=PLAYER_1, current_state=state_n, next_states=transitions, reward=self.reward_list[state_n])
+                    player=PLAYER_1, idx=state_n, next_states=transitions, reward=self.reward_list[state_n])
 
-        for state_n, transitions in enumerate(self.transition_matrix[1]):
+        for state_n, transitions in enumerate(self.transition_matrix[SECOND_PLAYER]):
             if transitions:
                 state_list[state_n] = PlayerNode(
-                    player=PLAYER_2, current_state=state_n, next_states=transitions, reward=self.reward_list[state_n])
+                    player=PLAYER_2, idx=state_n, next_states=transitions, reward=self.reward_list[state_n])
 
-        for state_n, transitions in enumerate(self.transition_matrix[2]):
+        for state_n, transitions in enumerate(self.transition_matrix[PROBABILISTIC_PLAYER]):
             if transitions:
                 state_list[state_n] = ProbabilisticNode(
-                    player=PROBABILISTIC, current_state=state_n,
-                    next_states=transitions, reward=0, is_final_node=(state_n in self.final_states))
+                    player=PROBABILISTIC, idx=state_n,
+                    next_states=transitions, reward=self.reward_list[state_n], is_final_node=(state_n in self.final_states))
 
         if None in state_list:
             idx = state_list.index(None)
@@ -72,32 +77,35 @@ class StochasticGame:
 
 class Node:
     """The base node class
-    current_state: a str, is the name of the current state
+    idx: an int, is the number of the current state in the state list and the transition matrix
     next_states: a list of tuples, every tuple contains the next state and an action or a probability."""
 
-    def __init__(self, player, current_state, reward, next_states,
+    def __init__(self, player, idx, reward, next_states,
                  is_final_node=False):
         self.player = player
-        self.current_state = current_state
+        self.idx = idx
         self.reward = reward
         self.next_states = next_states
         self.is_final_node = is_final_node
-        self.reach_probability = 0
+        self.reach_probability = 1 if is_final_node else 0
         self.reach_probability_next = 0
-        self.expected_rewards = 0
+        self.expected_rewards = reward # TODO: hay que iniciar con 0 o con reward?
         self.expected_rewards_next = 0
 
 
 class ProbabilisticNode(Node):
-    def __init__(self, player, current_state, reward, next_states,
+    def __init__(self, player, idx, reward, next_states,
                  is_final_node):
-        super().__init__(self, player, current_state, reward, next_states, is_final_node)
+        super().__init__(player, idx, reward, next_states, is_final_node)
         self.is_loop_node = self._is_loop_node()
 
     def _is_loop_node(self):
-        return len(self.next_states) == 1 and self.current_state == self.next_states[0]
+        return len(self.next_states) == 1 and self.idx == self.next_states[0][NEXT_STATE_IDX]
 
-    # TODO no uso en un principio esta funcion, pero podria ser mas prolijo usarla (ver todo en player node) 
+    # TODO no uso en un principio esta funcion, 
+    # pero podria ser mas prolijo usarla (ver todo en player node)
+    # No se si vale la pena en el probabilistic, porque no quiero
+    # que sea random lo de iterar por los estados.    
     def get_next_state(self):
         probabilities, next_states = zip(*self.next_states)
         # random.choices returns a list with one element
@@ -105,30 +113,33 @@ class ProbabilisticNode(Node):
 
     # def set_node_for_reachabily(self):
     #     reward = 1 if self.is_final_node else 0
-    #     return ProbabilisticNode(
-    #         player=PROBABILISTIC, current_state=self.current_state, reward=reward,
+    #     return ProbabilisticNode( 
+    #         player=PROBABILISTIC, idx=self.idx, reward=reward,
     #         next_states= self.next_states, is_final_node=self.is_final_node)
 
     def value_iteration_reach(self, state_list):
         value = 0
         for next_state in self.next_states:
-            _next_state = state_list[next_state[1]]
-            value += _next_state.reach_probability * next_state[0]
+            _next_state = state_list[next_state[NEXT_STATE_IDX]]
+            value += _next_state.reach_probability * next_state[PROBABILITY]
         return value
 
     def value_iteration_rewards(self, state_list):
         value = 0
         for next_state in self.next_states:
-            _next_state = state_list[next_state[1]]
-            value += _next_state.expected_rewards * next_state[0]
+            _next_state = state_list[next_state[NEXT_STATE_IDX]]
+            value += _next_state.expected_rewards * next_state[PROBABILITY]
         value += self.reward
         return value
 
 
 class PlayerNode(Node):
-    def __init_(self, player, current_state, reward, next_states):
-        super().__init__(self, player, current_state, reward, next_states)
+
+    def __init__(self, player, idx, reward, next_states,
+                 is_final_node=False):
         self.next_states_dict = dict(next_states)
+        super().__init__(player, idx, reward, next_states, is_final_node)
+
 
     # TODO: no uso en un principio el dict ni esta funcion, pero podria ser mas prolijo
     # igual hay que arreglarlo, porque necesita el state list
@@ -138,7 +149,7 @@ class PlayerNode(Node):
     # def set_node_for_reachabily(self):
     #     reward = 1 if self.is_final_node else 0
     #     return PlayerNode(
-    #         player=self.player, current_state=self.current_state, reward=reward,
+    #         player=self.player, idx=self.idx, reward=reward,
     #         next_states=self.next_states)
     
 
@@ -151,7 +162,7 @@ class PlayerNode(Node):
             if next_state_reach_probability > max_probability:
                 max_probability = next_state_reach_probability
                 best_strategies = [action]
-            if next_state_reach_probability == max_probability:
+            elif next_state_reach_probability == max_probability:
                 best_strategies.append(action)
         return best_strategies
 
@@ -159,11 +170,13 @@ class PlayerNode(Node):
         max_rewards = 0
         best_strategies = []
         for action, next_state_idx in self.next_states:
-            next_state_reach_probability = state_list[next_state_idx].reach_probability 
-            if next_state_reach_probability > max_probability:
-                max_probability = next_state_reach_probability
+            _next_state = state_list[next_state_idx]
+            # TODO: Recompensa condicionada, no estoy seguro si es acá o en cada iteracion del value iteration
+            next_state_expected_rewards = _next_state.expected_rewards * _next_state.reach_probability
+            if next_state_expected_rewards > max_rewards:
+                max_rewards = next_state_expected_rewards
                 best_strategies = [action]
-            if next_state_reach_probability == max_probability:
+            elif next_state_expected_rewards == max_rewards:
                 best_strategies.append(action)
         return best_strategies
 
@@ -183,7 +196,7 @@ class PlayerNode(Node):
     def value_iteration_reach_min(self, state_list):
         min_reach_prob = 1
         for next_state in self.next_states:
-            next_state_reach_prob = state_list[next_state[1]].reach_probability
+            next_state_reach_prob = state_list[next_state[NEXT_STATE_IDX]].reach_probability
             if next_state_reach_prob < min_reach_prob:
                 min_reach_prob = next_state_reach_prob
         return min_reach_prob
@@ -191,7 +204,7 @@ class PlayerNode(Node):
     def value_iteration_rewards_max(self, state_list):
         max_rewards = 0
         for next_state in self.next_states:
-            next_state_exp_rewards = state_list[next_state[1]].expected_rewards
+            next_state_exp_rewards = state_list[next_state[NEXT_STATE_IDX]].expected_rewards
             if next_state_exp_rewards > max_rewards:
                 max_rewards = next_state_exp_rewards
         max_rewards += self.reward
@@ -199,9 +212,9 @@ class PlayerNode(Node):
 
     def value_iteration_rewards_min(self, state_list):
         # init min value with the value of the first state
-        min_rewards = state_list[self.next_states[0][1]].expected_rewards
+        min_rewards = state_list[self.next_states[0][NEXT_STATE_IDX]].expected_rewards
         for next_state in self.next_states:
-            next_state_exp_rewards = state_list[next_state[1]].expected_rewards
+            next_state_exp_rewards = state_list[next_state[NEXT_STATE_IDX]].expected_rewards
             if next_state_exp_rewards < min_rewards:
                 min_rewards = next_state_exp_rewards
         min_rewards += self.reward
@@ -216,16 +229,10 @@ class Solver:
     def solve_reachability(self, state_list, transition_matrix, final_states):
         """This function returns a list of strategies for reachability"""
         reachable_states = reverse_dfs(transition_matrix, final_states)
-        not_reachable_states = [state for state in state_list if state not in reachable_states]
 
-        for state in not_reachable_states:
-            state.reach_probability = 0
-
-        for state in final_states:
-            state.reach_probability = 1
-
+        not_reachable_states = [state for state in state_list if state.idx not in reachable_states]
+        
         # Usando value iteration
-        #TODO: TESTEAR ESTO
         diff = 1
         while diff > self.threshold:
             for state in reachable_states:
@@ -253,7 +260,7 @@ class Solver:
         strategies = [None] * len(state_list)
         for state in state_list:
             if state.player == PLAYER_1:
-                strategies[state.current_state] = state.get_best_strategies_reachability()
+                strategies[state.idx] = state.get_best_strategies_reachability(state_list)
         
         # strategies will be a list of lists, and it will have None if the player is not PLAYER_1
         # in the case of PLAYER_1, it will have a list of the best actions for that state
@@ -289,16 +296,17 @@ class Solver:
             for state in state_list:
                 state.expected_rewards = state.expected_rewards_next
 
+        #TODO hacer 5.8, la recompensa condicionada 
         total_rewards_strategies = self._get_total_rewards_strategies(state_list)
         return total_rewards_strategies
 
 
     def _get_total_rewards_strategies(self, state_list):
-        """This function returns a list of strategies that maximize total rewards"""
+        """This function returns a list of strategies that maximize total rewards""" 
         strategies = [None] * len(state_list)
         for state in state_list:
             if state.player == PLAYER_1:
-                strategies[state.current_state] = state.get_best_strategies_total_rewards()
+                strategies[state.idx] = state.get_best_strategies_total_rewards(state_list)
         
         # strategies will be a list of lists, where the index of the list is the state
         # The value will be None if the player that control that state is not PLAYER_1.
