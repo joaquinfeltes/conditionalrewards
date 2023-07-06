@@ -211,8 +211,8 @@ def node_s4():
         idx=4,
         reward=0,
         next_states=[
-            (1/2, 6),
-            (1/2, 7),
+            (3/4, 6),
+            (1/4, 7),
         ],
         is_final_node=False,
     )
@@ -286,7 +286,51 @@ def transition_matrix_graph_5_5(state_list_graph_5_5):
     return state_list_to_transition_matrix(state_list_graph_5_5)
 
 
-
 @pytest.fixture
 def final_states_graph_5_5(node_s6_good):
     return [node_s6_good.idx]
+
+@pytest.fixture
+def reachability_strategies_graph_5_5():
+    return [["beta"], None, None, None, None, None, None, None]
+
+
+# ----------------------------------------------------------------------------#
+# graph of figure 5.5 from the paper, with a small modification
+# now every transition for probabilistic nodes are 1/2
+
+@pytest.fixture
+def node_s4_eq_probs():
+    return ProbabilisticNode(
+        player=PROBABILISTIC,
+        idx=4,
+        reward=0,
+        next_states=[
+            (1/2, 6),
+            (1/2, 7),
+        ],
+        is_final_node=False,
+    )
+
+@pytest.fixture
+def state_list_graph_5_5_bis(node_s0, node_s1, node_s2, node_s3, node_s4_eq_probs, node_s5_bad, node_s6_good, node_s7_bad):
+    state_list = [node_s0, node_s1, node_s2, node_s3, node_s4_eq_probs, node_s5_bad, node_s6_good, node_s7_bad]
+    for node in state_list:
+        if node.is_final_node:
+            node.reach_probability = 1
+    return state_list
+
+
+@pytest.fixture
+def transition_matrix_graph_5_5_bis(state_list_graph_5_5_bis):
+    return state_list_to_transition_matrix(state_list_graph_5_5_bis)
+
+
+@pytest.fixture
+def final_states_graph_5_5_bis(node_s6_good):
+    return [node_s6_good.idx]
+
+
+@pytest.fixture
+def reachability_strategies_graph_5_5_bis():
+    return [["alfa", "beta"], None, None, None, None, None, None, None]

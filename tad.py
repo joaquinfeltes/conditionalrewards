@@ -239,16 +239,15 @@ class Solver:
                 _state = state_list[state_idx]
                 if _state.player == PLAYER_1:
                     _state.reach_probability_next = _state.value_iteration_reach_max(state_list)
-                if _state.player == PLAYER_2:
+                elif _state.player == PLAYER_2:
                     _state.reach_probability_next = _state.value_iteration_reach_min(state_list)
-                if _state.player == PROBABILISTIC:
+                elif _state.player == PROBABILISTIC:
                     _state.reach_probability_next = _state.value_iteration_reach(state_list)
             
             diff = max([abs(state_list[state_idx].reach_probability_next - state_list[state_idx].reach_probability) for state_idx in reachable_states])
             for state_idx in reachable_states:
                 _state = state_list[state_idx]
                 _state.reach_probability = _state.reach_probability_next
-
 
         reachability_strategies = self._get_reachability_strategies(state_list)
         # Ahora para cada estado hay que ver cual es la mejor estrategia, 
@@ -283,21 +282,22 @@ class Solver:
                 state.prune_state(reachability_strategies[idx])
                 # TODO: si cortamos un camino que llegaba a un nodo que no tiene otra forma de ser accedido, ese nodo ya no es alcanzable
                 # pero no hace falta hacer nada al respecto, si no nos preocupa la eficiencia
-                
+
         diff = 1
         while diff > self.threshold:
             for state in state_list:
                 if state.player == PLAYER_1:
                     state.expected_rewards_next = state.value_iteration_rewards_max(state_list)
-                if state.player == PLAYER_2:
+                elif state.player == PLAYER_2:
                     state.expected_rewards_next = state.value_iteration_rewards_min(state_list)
-                if state.player == PROBABILISTIC:
+                elif state.player == PROBABILISTIC:
                     state.expected_rewards_next = state.value_iteration_rewards(state_list)
             
             diff = max([abs(state.expected_rewards_next - state.expected_rewards) for state in state_list])
             for state in state_list:
                 state.expected_rewards = state.expected_rewards_next
 
+        import ipdb; ipdb.set_trace()
         #TODO hacer 5.8, la recompensa condicionada 
         total_rewards_strategies = self._get_total_rewards_strategies(state_list)
         return total_rewards_strategies

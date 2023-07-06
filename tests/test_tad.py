@@ -22,6 +22,7 @@ from tests.node_fixtures import (
     node_s2,
     node_s3,
     node_s4,
+    node_s4_eq_probs,
     node_s5_bad,
     node_s6_good,
     node_s7_bad,
@@ -33,6 +34,11 @@ from tests.node_fixtures import (
     state_list_graph_5_5,
     transition_matrix_graph_5_5,
     final_states_graph_5_5,
+    reachability_strategies_graph_5_5,
+    state_list_graph_5_5_bis,
+    transition_matrix_graph_5_5_bis,
+    final_states_graph_5_5_bis,
+    reachability_strategies_graph_5_5_bis,
     )
 #----------------------------------------ProbabilisticNode----------------------------------------#
    
@@ -146,14 +152,14 @@ def test_player_node_value_iteration_reach_min(player_node_0, state_list_w_playe
     assert reachability == expected_reachability
 
 
-# in one iteration the reachability is 0, but it will increase in the next iterations
+# in one iteration the reachability is 0 for s0, but it will increase in the next iterations
 def test_player_node_value_iteration_reach_full(node_s0, node_s3, node_s4, state_list_graph_5_5):
     reachability_s0 = node_s0.value_iteration_reach_max(state_list_graph_5_5)
     reachability_s3 = node_s3.value_iteration_reach(state_list_graph_5_5)
     reachability_s4 = node_s4.value_iteration_reach(state_list_graph_5_5)
     expected_reachability_s0 = 0
     expected_reachability_s3 = 1/2
-    expected_reachability_s4 = 1/2
+    expected_reachability_s4 = 3/4
     assert reachability_s0 == expected_reachability_s0
     assert reachability_s3 == expected_reachability_s3
     assert reachability_s4 == expected_reachability_s4
@@ -205,8 +211,12 @@ def test_player_node_value_iteration_rewards_full(
 #----------------------------------------Solver----------------------------------------#
 
 
-def test_get_reachability_strategies():
-    pass
+def test_get_reachability_strategies(state_list_graph_5_5):
+    reachability_strategies = Solver()._get_reachability_strategies(state_list_graph_5_5)
+    # At this stage both actions have 0 probability, so they are tied for the best strategy
+    # TODO: should init the reach probability to the next states
+    expected_reachability_strategies = [["alfa", "beta"], None, None, None, None, None, None, None]
+    assert reachability_strategies == expected_reachability_strategies
 
 
 def test_solve_reachability_graph_5_5(state_list_graph_5_5, transition_matrix_graph_5_5, final_states_graph_5_5):
@@ -214,17 +224,42 @@ def test_solve_reachability_graph_5_5(state_list_graph_5_5, transition_matrix_gr
             state_list=state_list_graph_5_5,
             transition_matrix=transition_matrix_graph_5_5, 
             final_states=final_states_graph_5_5)
+    expected_reachability_strategies = [["beta"], None, None, None, None, None, None, None]
+    assert reachability_strategies == expected_reachability_strategies
+
+
+def test_solve_reachability_graph_5_5_bis(state_list_graph_5_5_bis, transition_matrix_graph_5_5_bis, final_states_graph_5_5_bis):
+    reachability_strategies = Solver().solve_reachability(
+            state_list=state_list_graph_5_5_bis,
+            transition_matrix=transition_matrix_graph_5_5_bis, 
+            final_states=final_states_graph_5_5_bis)
+    #alfa and beta have the same prob
     expected_reachability_strategies = [["alfa", "beta"], None, None, None, None, None, None, None]
     assert reachability_strategies == expected_reachability_strategies
 
 
-def test_get_total_rewards_strategies():
-    pass
+def test_get_total_rewards_strategies(state_list_graph_5_5):
+    total_rewards_strategies = Solver()._get_total_rewards_strategies(state_list_graph_5_5)
+    # As we didn't run the value iteration, the reach probability is 0 so the expected total rewards are equal
+    # TODO: should init the reach probability to each state
+    expected_total_rewards_strategies = [["alfa", "beta"], None, None, None, None, None, None, None]
+    assert total_rewards_strategies == expected_total_rewards_strategies
 
 
-def test_solve_total_rewards():
-    pass
+def test_solve_total_rewards(state_list_graph_5_5, transition_matrix_graph_5_5, reachability_strategies_graph_5_5):
+    test_get_total_rewards_strategies = Solver().solve_total_rewards(state_list_graph_5_5, transition_matrix_graph_5_5, reachability_strategies_graph_5_5)
+    expected_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
+    assert test_get_total_rewards_strategies == expected_total_rewards_strategies
 
+
+def test_solve_total_rewards_bis(state_list_graph_5_5_bis, transition_matrix_graph_5_5_bis, reachability_strategies_graph_5_5_bis):
+    test_get_total_rewards_strategies = Solver().solve_total_rewards(state_list_graph_5_5_bis, transition_matrix_graph_5_5_bis, reachability_strategies_graph_5_5_bis)
+    # the path with alfa has more rewards than the path with beta
+
+    #But the reachability is not calculated
+    #TODO init the reachability to each state
+    expected_total_rewards_strategies = [["alfa"], None, None, None, None, None, None, None]
+    assert test_get_total_rewards_strategies == expected_total_rewards_strategies
 
 #----------------------------------------StochasticGame----------------------------------------#
 
