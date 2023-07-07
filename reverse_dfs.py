@@ -1,17 +1,18 @@
-# This file contains the functions needed to perform a reverse dfs 
+# This file contains the functions needed to perform a reverse dfs
 #  on a transition matrix
 
-def reverse_dfs_recursive(state:int, transitions:dict, reachable_states:list) -> list:
+def reverse_dfs_recursive(state: int, transitions: dict, reachable_states: list) -> list:
     rec_reachable_states = reachable_states.copy()
     rec_reachable_states.append(state)
     for next_state in transitions[state]:
         if next_state not in reachable_states:
-            rec_reachable_states = reverse_dfs_recursive(next_state, transitions, rec_reachable_states)
+            rec_reachable_states = reverse_dfs_recursive(
+                next_state, transitions, rec_reachable_states)
     return rec_reachable_states
 
 
-def reverse_dfs(transition_matrix:list, final_states:list) -> list:
-    transitions = reverse_transition_matrix(transition_matrix) 
+def reverse_dfs(transition_matrix: list, final_states: list) -> list:
+    transitions = reverse_transition_matrix(transition_matrix)
     reachable_states = []
     for final_state in final_states:
         reachable_states = reverse_dfs_recursive(final_state, transitions, reachable_states)
@@ -27,14 +28,17 @@ def reverse_transition_matrix(transition_matrix: list) -> dict:
         then for each player, if the state is not None in the list the state belongs to that player
         the name of the state is the index of the list
         the value of the element if is not None is a list of the next states,
-        the next states are tuples where the first element is the probability of reaching that state or the action needed to reach that state. 
+        the next states are tuples where the first element is the probability of reaching
+        that state or the action needed to reach that state.
         and the second element is the name of that state.
-        The reversed transitions will be a dict with the key being the state and the value being a list of the states that can be reached
+        The reversed transitions will be a dict with the key
+        being the state and the value being a list of the states that can be reached
     """
     reversed_transition_list = reverse_transition_matrix_core(transition_matrix)
     reversed_transition_dict = list_of_tuples_to_dict_of_lists(reversed_transition_list)
     # The dict might miss some states, add them with empty lists
-    reversed_transition_dict = add_missing_states(reversed_transition_dict, len(transition_matrix[0]))
+    reversed_transition_dict = add_missing_states(
+        reversed_transition_dict, len(transition_matrix[0]))
     return reversed_transition_dict
 
 

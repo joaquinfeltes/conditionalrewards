@@ -1,25 +1,19 @@
 import pytest
-
 from tad import (
-    Node,
     PLAYER_1,
     PLAYER_2,
     PlayerOne,
     PlayerTwo,
     PROBABILISTIC,
     ProbabilisticNode,
-    Solver,
     StochasticGame,
-    FIRST_PLAYER,
-    SECOND_PLAYER,
-    PROBABILISTIC_PLAYER, 
     )
 
 
 # ----------------------------------------------------------------------------#
-# Simple graph with 3 probabilistic nodes, 
+# Simple graph with 3 probabilistic nodes,
 # the first node points to the other two and the last one is final
- 
+
 @pytest.fixture
 def node_0():
     return ProbabilisticNode(
@@ -70,10 +64,9 @@ def state_list_simple(node_0, node_1_final, node_2):
     return state_list
 
 
-
 # ----------------------------------------------------------------------------#
-# Graph with 3 nodes the first is a player_1 node and the other two are probabilistic ones,
-# the last one is final
+# Graph with 3 nodes the first is a player_1 node
+# and the other two are probabilistic, where the last one is final
 
 @pytest.fixture
 def player_one_node_0():
@@ -99,7 +92,6 @@ def state_list_w_player_one_at_start(player_one_node_0, node_1_final, node_2):
     return state_list
 
 
-
 @pytest.fixture
 def player_two_node_0():
     player_two_node_0 = PlayerTwo(
@@ -114,6 +106,7 @@ def player_two_node_0():
     )
     return player_two_node_0
 
+
 @pytest.fixture
 def state_list_w_player_two_at_start(player_two_node_0, node_1_final, node_2):
     state_list = [player_two_node_0, node_1_final, node_2]
@@ -122,8 +115,9 @@ def state_list_w_player_two_at_start(player_two_node_0, node_1_final, node_2):
             node.reach_probability = 1
     return state_list
 
+
 # ----------------------------------------------------------------------------#
-# graph with 3 nodes one for player 1 and two final ones 
+# graph with 3 nodes one for player 1 and two final ones
 
 @pytest.fixture
 def node_2_final():
@@ -148,7 +142,7 @@ def state_list_two_final_states(player_one_node_0, node_1_final, node_2_final):
 
 
 # ----------------------------------------------------------------------------#
-# graph with 3 nodes one for player 1 and two final ones, with equal rewards 
+# graph with 3 nodes one for player 1 and two final ones, with equal rewards
 
 @pytest.fixture
 def node_2_final_eq_rew():
@@ -283,8 +277,10 @@ def node_s7_bad():
 
 
 @pytest.fixture
-def state_list_game_5_5(node_s0, node_s1, node_s2, node_s3, node_s4, node_s5_bad, node_s6_good, node_s7_bad):
-    state_list = [node_s0, node_s1, node_s2, node_s3, node_s4, node_s5_bad, node_s6_good, node_s7_bad]
+def state_list_game_5_5(
+        node_s0, node_s1, node_s2, node_s3, node_s4, node_s5_bad, node_s6_good, node_s7_bad):
+    state_list = [
+        node_s0, node_s1, node_s2, node_s3, node_s4, node_s5_bad, node_s6_good, node_s7_bad]
     for node in state_list:
         if node.is_final_node:
             node.reach_probability = 1
@@ -294,34 +290,37 @@ def state_list_game_5_5(node_s0, node_s1, node_s2, node_s3, node_s4, node_s5_bad
 @pytest.fixture
 def transition_matrix_game_5_5(state_list_game_5_5):
     return [
-        [[('alfa', 1), ('beta', 2)], None, None, None, None, None, None, None], 
+        [[('alfa', 1), ('beta', 2)], None, None, None, None, None, None, None],
         [None, [(' ', 3)], [(' ', 4)], None, None, None, None, None],
-        [None, None, None, [(0.5, 5), (0.5, 6)], [(0.75, 6), (0.25, 7)], [(1, 5)], [(1, 6)], [(1, 7)]]
+        [None, None, None, [(0.5, 5), (0.5, 6)], [(0.75, 6), (0.25, 7)], [(1, 5)],
+         [(1, 6)], [(1, 7)]]
     ]
-    # SI cambio la transition matrix por una lista de transiciones.   
+    # SI cambio la transition matrix por una lista de transiciones.
     # [
-    # ("player 1", [('alfa', 1), ('beta', 2)]), 
+    # ("player 1", [('alfa', 1), ('beta', 2
     # ("player 2", [('x', 3)]),
-    # ("player 2", [('z', 4)]), 
+    # ("player 2", [('z', 4)]),
     # ("probabilistic", [(0.5, 5), (0.5, 6)]),
     # ("probabilistic", [(0.75, 6), (0.25, 7)]),
-    # ("probabilistic", [(1, 5)]), 
+    # ("probabilistic", [(1, 5)]),
     # ("probabilistic", [(1, 6)]),
     # ("probabilistic", [(1, 7)])
     # ]
+
 
 @pytest.fixture
 def final_states_game_5_5(node_s6_good):
     return [node_s6_good.idx]
 
+
 @pytest.fixture
 def reachability_strategies_game_5_5():
     return [["beta"], None, None, None, None, None, None, None]
 
-
 # ----------------------------------------------------------------------------#
 # graph of figure 5.5 from the paper, with a small modification
 # now every transition for probabilistic nodes are 1/2
+
 
 @pytest.fixture
 def node_s4_eq_probs():
@@ -338,8 +337,12 @@ def node_s4_eq_probs():
 
 
 @pytest.fixture
-def state_list_game_5_5_same_reach(node_s0, node_s1, node_s2, node_s3, node_s4_eq_probs, node_s5_bad, node_s6_good, node_s7_bad):
-    state_list = [node_s0, node_s1, node_s2, node_s3, node_s4_eq_probs, node_s5_bad, node_s6_good, node_s7_bad]
+def state_list_game_5_5_same_reach(
+        node_s0, node_s1, node_s2, node_s3, node_s4_eq_probs,
+        node_s5_bad, node_s6_good, node_s7_bad):
+    state_list = [
+        node_s0, node_s1, node_s2, node_s3, node_s4_eq_probs,
+        node_s5_bad, node_s6_good, node_s7_bad]
     for node in state_list:
         if node.is_final_node:
             node.reach_probability = 1
@@ -377,9 +380,9 @@ def stochastic_game_game_5_5(transition_matrix_game_5_5, final_states_game_5_5):
     )
 
 
-
 @pytest.fixture
-def stochastic_game_game_5_5_same_reach(transition_matrix_game_5_5_same_reach, final_states_game_5_5_same_reach):
+def stochastic_game_game_5_5_same_reach(
+        transition_matrix_game_5_5_same_reach, final_states_game_5_5_same_reach):
     return StochasticGame(
         reward_list=[0, 2, 5/3, 0, 0, 0, 0, 0],
         final_states=final_states_game_5_5_same_reach,
@@ -398,7 +401,7 @@ def stochastic_game_first_state_without_transitions():
         transition_matrix=[
             [None, None, None],
             [None, None, None],
-            [None, [1,2], [1,2]],
+            [None, [1, 2], [1, 2]],
             ],
     )
 
@@ -411,7 +414,7 @@ def stochastic_game_incomplete_reward_list():
         transition_matrix=[
             [None, None, None],
             [None, None, None],
-            [[1,1], [1,2], [1,2]],
+            [[1, 1], [1, 2], [1, 2]],
             ],
     )
 
@@ -424,7 +427,7 @@ def stochastic_game_incomplete_player_one():
         transition_matrix=[
             [None, None],
             [None, None, None],
-            [[1,1], [1,2], [1,2]],
+            [[1, 1], [1, 2], [1, 2]],
             ],
     )
 
@@ -437,7 +440,7 @@ def stochastic_game_incomplete_player_two():
         transition_matrix=[
             [None, None, None],
             [None, None],
-            [[1,1], [1,2], [1,2]],
+            [[1, 1], [1, 2], [1, 2]],
             ],
     )
 
@@ -448,9 +451,9 @@ def stochastic_game_incomplete_probabilistic():
         reward_list=[0, 0, 0],
         final_states=[2],
         transition_matrix=[
-            [None, None, [("a",2)]],
+            [None, None, [("a", 2)]],
             [None, None, None],
-            [[1,1], [1,2]],
+            [[1, 1], [1, 2]],
             ],
     )
 
@@ -462,6 +465,6 @@ def stochastic_game_incomplete_transition_matrix():
         final_states=[2],
         transition_matrix=[
             [None, None, None],
-            [[1,1], [1,2], [1,2]],
+            [[1, 1], [1, 2], [1, 2]],
             ],
     )
