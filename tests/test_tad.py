@@ -257,5 +257,5 @@ def test_sg_init_incomplete_transition_matrix(stochastic_game_incomplete_transit
     with pytest.raises(ValueError) as e:
         stochastic_game_incomplete_transition_matrix.init_states()
     assert str(e.value) == \
-        "The transition matrix must have 3 elements, one for each player and one for \
-        the probabilistic nodes."
+        "The transition matrix must have 3 elements, one for each player and one for " + \
+        "the probabilistic nodes."

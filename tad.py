@@ -30,8 +30,8 @@ class StochasticGame:
         # If the matrix is a list instead of 3 lists, this raise is not needed
         if len(self.transition_matrix) != 3:
             raise ValueError(
-                "The transition matrix must have 3 elements, \
-                 one for each player and one for the probabilistic nodes.")
+                "The transition matrix must have 3 elements, "
+                "one for each player and one for the probabilistic nodes.")
         if len(self.transition_matrix[SECOND_PLAYER]) != self.num_states or \
                 len(self.transition_matrix[PROBABILISTIC_PLAYER]) != self.num_states:
             raise ValueError(
