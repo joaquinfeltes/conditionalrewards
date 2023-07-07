@@ -4,7 +4,8 @@ from tad import (
     Node,
     PLAYER_1,
     PLAYER_2,
-    PlayerNode,
+    PlayerOne,
+    PlayerTwo,
     PROBABILISTIC,
     ProbabilisticNode,
     Solver,
@@ -75,8 +76,8 @@ def state_list_simple(node_0, node_1_final, node_2):
 # the last one is final
 
 @pytest.fixture
-def player_node_0():
-    player_node_0 = PlayerNode(
+def player_one_node_0():
+    player_one_node_0 = PlayerOne(
         player=PLAYER_1,
         idx=0,
         reward=1,
@@ -86,17 +87,40 @@ def player_node_0():
         ],
         is_final_node=False,
     )
-    return player_node_0
+    return player_one_node_0
 
 
 @pytest.fixture
-def state_list_w_player_at_start(player_node_0, node_1_final, node_2):
-    state_list = [player_node_0, node_1_final, node_2]
+def state_list_w_player_one_at_start(player_one_node_0, node_1_final, node_2):
+    state_list = [player_one_node_0, node_1_final, node_2]
     for node in state_list:
         if node.is_final_node:
             node.reach_probability = 1
     return state_list
 
+
+
+@pytest.fixture
+def player_two_node_0():
+    player_two_node_0 = PlayerTwo(
+        player=PLAYER_2,
+        idx=0,
+        reward=1,
+        next_states=[
+            ("a", 1),
+            ("b", 2),
+        ],
+        is_final_node=False,
+    )
+    return player_two_node_0
+
+@pytest.fixture
+def state_list_w_player_two_at_start(player_two_node_0, node_1_final, node_2):
+    state_list = [player_two_node_0, node_1_final, node_2]
+    for node in state_list:
+        if node.is_final_node:
+            node.reach_probability = 1
+    return state_list
 
 # ----------------------------------------------------------------------------#
 # graph with 3 nodes one for player 1 and two final ones 
@@ -115,8 +139,8 @@ def node_2_final():
 
 
 @pytest.fixture
-def state_list_two_final_states(player_node_0, node_1_final, node_2_final):
-    state_list = [player_node_0, node_1_final, node_2_final]
+def state_list_two_final_states(player_one_node_0, node_1_final, node_2_final):
+    state_list = [player_one_node_0, node_1_final, node_2_final]
     for node in state_list:
         if node.is_final_node:
             node.reach_probability = 1
@@ -140,8 +164,8 @@ def node_2_final_eq_rew():
 
 
 @pytest.fixture
-def state_list_two_final_states_eq_rew(player_node_0, node_1_final, node_2_final_eq_rew):
-    state_list = [player_node_0, node_1_final, node_2_final_eq_rew]
+def state_list_two_final_states_eq_rew(player_one_node_0, node_1_final, node_2_final_eq_rew):
+    state_list = [player_one_node_0, node_1_final, node_2_final_eq_rew]
     for node in state_list:
         if node.is_final_node:
             node.reach_probability = 1
@@ -153,7 +177,7 @@ def state_list_two_final_states_eq_rew(player_node_0, node_1_final, node_2_final
 
 @pytest.fixture
 def node_s0():
-    return PlayerNode(
+    return PlayerOne(
         player=PLAYER_1,
         idx=0,
         reward=0,
@@ -167,7 +191,7 @@ def node_s0():
 
 @pytest.fixture
 def node_s1():
-    return PlayerNode(
+    return PlayerTwo(
         player=PLAYER_2,
         idx=1,
         reward=2,
@@ -180,7 +204,7 @@ def node_s1():
 
 @pytest.fixture
 def node_s2():
-    return PlayerNode(
+    return PlayerTwo(
         player=PLAYER_2,
         idx=2,
         reward=5/3,
@@ -274,7 +298,17 @@ def transition_matrix_game_5_5(state_list_game_5_5):
         [None, [(' ', 3)], [(' ', 4)], None, None, None, None, None],
         [None, None, None, [(0.5, 5), (0.5, 6)], [(0.75, 6), (0.25, 7)], [(1, 5)], [(1, 6)], [(1, 7)]]
     ]
-
+    # SI cambio la transition matrix por una lista de transiciones.   
+    # [
+    # ("player 1", [('alfa', 1), ('beta', 2)]), 
+    # ("player 2", [('x', 3)]),
+    # ("player 2", [('z', 4)]), 
+    # ("probabilistic", [(0.5, 5), (0.5, 6)]),
+    # ("probabilistic", [(0.75, 6), (0.25, 7)]),
+    # ("probabilistic", [(1, 5)]), 
+    # ("probabilistic", [(1, 6)]),
+    # ("probabilistic", [(1, 7)])
+    # ]
 
 @pytest.fixture
 def final_states_game_5_5(node_s6_good):

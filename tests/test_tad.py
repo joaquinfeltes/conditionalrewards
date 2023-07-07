@@ -1,14 +1,10 @@
 import pytest
 
 from tad import (
-    Node,
     PLAYER_1,
     PLAYER_2,
-    PlayerNode,
     PROBABILISTIC,
-    ProbabilisticNode,
     Solver,
-    StochasticGame,
     )
 
 #TODO: set fixtures instead of importing them
@@ -43,55 +39,53 @@ def test_value_iteration_rewards(node_0, state_list_simple):
 
 #----------------------------------------PlayerNode----------------------------------------#
 
-def test_player_node_get_best_strategies_reachability(player_node_0, state_list_w_player_at_start):
+def test_player_node_get_best_strategies_reachability(player_one_node_0, state_list_w_player_one_at_start):
     expected_best_strategies = ["a"]
-    assert player_node_0.get_best_strategies_reachability(state_list_w_player_at_start) == expected_best_strategies
+    assert player_one_node_0.get_best_strategies_reachability(state_list_w_player_one_at_start) == expected_best_strategies
 
 
-def test_player_node_get_best_strategies_reachability_two_strategies(player_node_0, state_list_two_final_states):
+def test_player_node_get_best_strategies_reachability_two_strategies(player_one_node_0, state_list_two_final_states):
     expected_best_strategies = ["a", "b"]
-    assert player_node_0.get_best_strategies_reachability(state_list_two_final_states) == expected_best_strategies
+    assert player_one_node_0.get_best_strategies_reachability(state_list_two_final_states) == expected_best_strategies
 
 
-def test_player_node_get_best_strategies_total_rewards(player_node_0, state_list_w_player_at_start):
+def test_player_node_get_best_strategies_total_rewards(player_one_node_0, state_list_w_player_one_at_start):
     expected_best_strategies = ["a"]
-    assert player_node_0.get_best_strategies_total_rewards(state_list_w_player_at_start) == expected_best_strategies
+    assert player_one_node_0.get_best_strategies_total_rewards(state_list_w_player_one_at_start) == expected_best_strategies
 
 
-def test_player_node_get_best_strategies_total_rewards_b_biggest_reward_and_final(player_node_0, state_list_two_final_states):
+def test_player_node_get_best_strategies_total_rewards_b_biggest_reward_and_final(player_one_node_0, state_list_two_final_states):
     expected_best_strategies = ["b"]
-    assert player_node_0.get_best_strategies_total_rewards(state_list_two_final_states) == expected_best_strategies
+    assert player_one_node_0.get_best_strategies_total_rewards(state_list_two_final_states) == expected_best_strategies
 
 
-def test_player_node_get_best_strategies_total_rewards_eq_rewards(player_node_0, state_list_two_final_states_eq_rew):
+def test_player_node_get_best_strategies_total_rewards_eq_rewards(player_one_node_0, state_list_two_final_states_eq_rew):
     expected_best_strategies = ["a","b"]
-    assert player_node_0.get_best_strategies_total_rewards(state_list_two_final_states_eq_rew) == expected_best_strategies
+    assert player_one_node_0.get_best_strategies_total_rewards(state_list_two_final_states_eq_rew) == expected_best_strategies
 
 
-def test_player_node_prune_state(player_node_0):
+def test_player_node_prune_state(player_one_node_0):
     best_strategies = ["a"]
-    assert player_node_0.next_states == [("a", 1), ("b", 2)]
-    player_node_0.prune_state(best_strategies)
-    assert player_node_0.next_states == [("a", 1)]
+    assert player_one_node_0.next_states == [("a", 1), ("b", 2)]
+    player_one_node_0.prune_state(best_strategies)
+    assert player_one_node_0.next_states == [("a", 1)]
 
 
-def test_player_node_value_iteration_reach_max(player_node_0, state_list_w_player_at_start):
-    reachability = player_node_0.value_iteration_reach_max(state_list_w_player_at_start)
+def test_player_node_value_iteration_reach_max(player_one_node_0, state_list_w_player_one_at_start):
+    reachability = player_one_node_0.value_iteration_reach(state_list_w_player_one_at_start)
     expected_reachability = 1
     assert reachability == expected_reachability
 
 
-# We use the min function as the class for players is the same,
-# but the min function is used for the second player
-def test_player_node_value_iteration_reach_min(player_node_0, state_list_w_player_at_start):
-    reachability = player_node_0.value_iteration_reach_min(state_list_w_player_at_start)
+def test_player_node_value_iteration_reach_min(player_two_node_0, state_list_w_player_two_at_start):
+    reachability = player_two_node_0.value_iteration_reach(state_list_w_player_two_at_start)
     expected_reachability = 0
     assert reachability == expected_reachability
 
 
 # in one iteration the reachability is 0 for s0, but it will increase in the next iterations
 def test_player_node_value_iteration_reach_full(node_s0, node_s3, node_s4, state_list_game_5_5):
-    reachability_s0 = node_s0.value_iteration_reach_max(state_list_game_5_5)
+    reachability_s0 = node_s0.value_iteration_reach(state_list_game_5_5)
     reachability_s3 = node_s3.value_iteration_reach(state_list_game_5_5)
     reachability_s4 = node_s4.value_iteration_reach(state_list_game_5_5)
     expected_reachability_s0 = 0
@@ -102,14 +96,14 @@ def test_player_node_value_iteration_reach_full(node_s0, node_s3, node_s4, state
     assert reachability_s4 == expected_reachability_s4
 
 
-def test_player_node_value_iteration_rewards_max(player_node_0, state_list_w_player_at_start):
-    total_rewards = player_node_0.value_iteration_rewards_max(state_list_w_player_at_start)
+def test_player_node_value_iteration_rewards_max(player_one_node_0, state_list_w_player_one_at_start):
+    total_rewards = player_one_node_0.value_iteration_rewards(state_list_w_player_one_at_start)
     expected_total_rewards = 4
     assert total_rewards == expected_total_rewards
 
 
-def test_player_node_value_iteration_rewards_min(player_node_0, state_list_w_player_at_start):
-    total_rewards = player_node_0.value_iteration_rewards_min(state_list_w_player_at_start)
+def test_player_node_value_iteration_rewards_min(player_two_node_0, state_list_w_player_two_at_start):
+    total_rewards = player_two_node_0.value_iteration_rewards(state_list_w_player_two_at_start)
     expected_total_rewards = 3
     assert total_rewards == expected_total_rewards
 
@@ -120,9 +114,9 @@ def test_player_node_value_iteration_rewards_full(
         node_s0, node_s1, node_s2, node_s3, node_s4,
         node_s5_bad, node_s6_good, node_s7_bad, 
         state_list_game_5_5):
-    rewards_s0 = node_s0.value_iteration_rewards_max(state_list_game_5_5)
-    rewards_s1 = node_s1.value_iteration_rewards_min(state_list_game_5_5)
-    rewards_s2 = node_s2.value_iteration_rewards_min(state_list_game_5_5)
+    rewards_s0 = node_s0.value_iteration_rewards(state_list_game_5_5)
+    rewards_s1 = node_s1.value_iteration_rewards(state_list_game_5_5)
+    rewards_s2 = node_s2.value_iteration_rewards(state_list_game_5_5)
     rewards_s3 = node_s3.value_iteration_rewards(state_list_game_5_5)
     rewards_s4 = node_s4.value_iteration_rewards(state_list_game_5_5)
     rewards_s5 = node_s5_bad.value_iteration_rewards(state_list_game_5_5)
@@ -148,51 +142,46 @@ def test_player_node_value_iteration_rewards_full(
 
 #----------------------------------------Solver----------------------------------------#
 
-#TODO: add tests for value iteration reachability and total rewards
+#TODO: add tests for value iteration reachability and total rewards and prune
 
 
 def test_get_reachability_strategies(state_list_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
-    reachability_strategies = Solver()._get_reachability_strategies(state_list_game_5_5)
+    reachability_strategies = Solver(state_list_game_5_5)._get_reachability_strategies()
     expected_reachability_strategies = [["beta"], None, None, None, None, None, None, None]
     assert reachability_strategies == expected_reachability_strategies
 
 
 def test_solve_reachability_game_5_5(state_list_game_5_5, transition_matrix_game_5_5, final_states_game_5_5):
-    reachability_strategies = Solver().solve_reachability(
-            state_list=state_list_game_5_5,
-            transition_matrix=transition_matrix_game_5_5, 
-            final_states=final_states_game_5_5)
+    reachability_strategies = Solver(state_list_game_5_5).solve_reachability(transition_matrix_game_5_5, final_states_game_5_5)
     expected_reachability_strategies = [["beta"], None, None, None, None, None, None, None]
     assert reachability_strategies == expected_reachability_strategies
 
 
 def test_solve_reachability_game_5_5_same_reach(state_list_game_5_5_same_reach, transition_matrix_game_5_5_same_reach, final_states_game_5_5_same_reach):
-    reachability_strategies = Solver().solve_reachability(
-            state_list=state_list_game_5_5_same_reach,
-            transition_matrix=transition_matrix_game_5_5_same_reach, 
-            final_states=final_states_game_5_5_same_reach)
+    reachability_strategies = Solver(state_list_game_5_5_same_reach).solve_reachability(transition_matrix_game_5_5_same_reach, final_states_game_5_5_same_reach)
     expected_reachability_strategies = [["alfa", "beta"], None, None, None, None, None, None, None]
     assert reachability_strategies == expected_reachability_strategies
 
 
 def test_get_total_rewards_strategies(state_list_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
-    total_rewards_strategies = Solver()._get_total_rewards_strategies(state_list_game_5_5)
+    total_rewards_strategies = Solver(state_list_game_5_5)._get_total_rewards_strategies()
     expected_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
     assert total_rewards_strategies == expected_total_rewards_strategies
 
 
 def test_solve_total_rewards(state_list_game_5_5, transition_matrix_game_5_5, reachability_strategies_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
-    test_get_total_rewards_strategies = Solver().solve_total_rewards(state_list_game_5_5, transition_matrix_game_5_5, reachability_strategies_game_5_5)
+    #might need to prune before
+    test_get_total_rewards_strategies = Solver(state_list_game_5_5).solve_total_rewards()
     expected_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
     assert test_get_total_rewards_strategies == expected_total_rewards_strategies
 
 
 def test_solve_total_rewards_same_reach_alfa_better_rewards(state_list_game_5_5_same_reach, transition_matrix_game_5_5_same_reach, reachability_strategies_game_5_5_same_reach):
     init_reachability(state_list_game_5_5_same_reach, [1/2, 1/2, 1/2, 1/2, 1/2, 0, 1, 0])
-    test_get_total_rewards_strategies = Solver().solve_total_rewards(state_list_game_5_5_same_reach, transition_matrix_game_5_5_same_reach, reachability_strategies_game_5_5_same_reach)
+    test_get_total_rewards_strategies = Solver(state_list_game_5_5_same_reach).solve_total_rewards()
     expected_total_rewards_strategies = [["alfa"], None, None, None, None, None, None, None]
     assert test_get_total_rewards_strategies == expected_total_rewards_strategies
 
@@ -203,36 +192,6 @@ def test_sg_init_states(stochastic_game_game_5_5, state_list_game_5_5):
     state_list = stochastic_game_game_5_5.init_states()
     for state, expected_state in zip(state_list, state_list_game_5_5):
             assert state == expected_state
-
-
-def test_sg_solve_reachability(stochastic_game_game_5_5, state_list_game_5_5):
-    reachability_strategies = stochastic_game_game_5_5.solve_reachability(state_list_game_5_5)
-    expected_reachability_strategies = [["beta"], None, None, None, None, None, None, None]
-    assert reachability_strategies == expected_reachability_strategies
-
-
-def test_sg_solve_total_rewards(stochastic_game_game_5_5, state_list_game_5_5):
-    init_reachability(state_list_game_5_5, [1/2, 1/2, 1/2, 1/2, 1/2, 0, 1, 0])
-    reachability_strategies = [["beta"], None, None, None, None, None, None, None]
-    total_rewards_strategies = stochastic_game_game_5_5.solve_total_rewards(
-        state_list_game_5_5, reachability_strategies)
-    expected_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
-    assert total_rewards_strategies == expected_total_rewards_strategies
-
-
-def test_sg_solve_reachability_same_reach(stochastic_game_game_5_5_same_reach, state_list_game_5_5_same_reach):
-    reachability_strategies = stochastic_game_game_5_5_same_reach.solve_reachability(state_list_game_5_5_same_reach)
-    expected_reachability_strategies = [["alfa", "beta"], None, None, None, None, None, None, None]
-    assert reachability_strategies == expected_reachability_strategies
-
-
-def test_sg_solve_total_rewards_same_reach(stochastic_game_game_5_5_same_reach, state_list_game_5_5_same_reach):
-    init_reachability(state_list_game_5_5_same_reach, [1/2, 1/2, 1/2, 1/2, 1/2, 0, 1, 0])
-    reachability_strategies = [["alfa", "beta"], None, None, None, None, None, None, None]
-    total_rewards_strategies = stochastic_game_game_5_5_same_reach.solve_total_rewards(
-        state_list_game_5_5_same_reach, reachability_strategies)
-    expected_total_rewards_strategies = [["alfa"], None, None, None, None, None, None, None]
-    assert total_rewards_strategies == expected_total_rewards_strategies
 
 
 def test_sg_solve(stochastic_game_game_5_5):

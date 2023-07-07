@@ -37,12 +37,12 @@ class StochasticGame:
 
         for state_n, transitions in enumerate(self.transition_matrix[FIRST_PLAYER]):
             if transitions:
-                state_list[state_n] = PlayerNode(
+                state_list[state_n] = PlayerOne(
                     player=PLAYER_1, idx=state_n, next_states=transitions, reward=self.reward_list[state_n])
 
         for state_n, transitions in enumerate(self.transition_matrix[SECOND_PLAYER]):
             if transitions:
-                state_list[state_n] = PlayerNode(
+                state_list[state_n] = PlayerTwo(
                     player=PLAYER_2, idx=state_n, next_states=transitions, reward=self.reward_list[state_n])
 
         for state_n, transitions in enumerate(self.transition_matrix[PROBABILISTIC_PLAYER]):
@@ -56,22 +56,12 @@ class StochasticGame:
             raise ValueError(f"Transition for state {idx} is not defined")
         return state_list
 
-
-    # TODO this two functions are literally just calling the solver, maybe we should just delete them
-    def solve_reachability(self, state_list):
-        reachability_strategies = Solver().solve_reachability(
-            state_list=state_list,
-              transition_matrix=self.transition_matrix, final_states=self.final_states)
-        return reachability_strategies
-
-    def solve_total_rewards(self, state_list, reachability_strategies):
-        final_strategies = Solver().solve_total_rewards(state_list=state_list, transition_matrix=self.transition_matrix, reachability_strategies=reachability_strategies)
-        return final_strategies
-
     def solve(self):
         state_list = self.init_states()
-        reachability_strategies = self.solve_reachability(state_list)
-        final_strategies = self.solve_total_rewards(state_list, reachability_strategies)
+        solver = Solver(threshold=0.01, state_list=state_list)
+        reachability_strategies = solver.solve_reachability(self.transition_matrix, self.final_states)
+        solver.prune_states(reachability_strategies)
+        final_strategies = solver.solve_total_rewards()
         return final_strategies
 
 
@@ -105,8 +95,7 @@ class Node:
 
 
 class ProbabilisticNode(Node):
-    def __init__(self, player, idx, reward, next_states,
-                 is_final_node):
+    def __init__(self, player, idx, reward, next_states, is_final_node):
         super().__init__(player, idx, reward, next_states, is_final_node)
 
     def value_iteration_reach(self, state_list):
@@ -125,14 +114,12 @@ class ProbabilisticNode(Node):
         return value
 
 
-# TODO: [YES] hacer una clase para cada jugador
-class PlayerNode(Node):
+class PlayerOne(Node):
 
-    def __init__(self, player, idx, reward, next_states,
-                 is_final_node=False):
+    def __init__(self, player, idx, reward, next_states, is_final_node=False):
         super().__init__(player, idx, reward, next_states, is_final_node)
 
-    def value_iteration_reach_max(self, state_list):
+    def value_iteration_reach(self, state_list):
         max_reach_prob = 0
         for _, next_state_idx in self.next_states:
             next_state_reach_prob = state_list[next_state_idx].reach_probability
@@ -140,13 +127,14 @@ class PlayerNode(Node):
                 max_reach_prob = next_state_reach_prob
         return max_reach_prob
 
-    def value_iteration_reach_min(self, state_list):
-        min_reach_prob = 1
+    def value_iteration_rewards(self, state_list):
+        max_rewards = 0
         for next_state in self.next_states:
-            next_state_reach_prob = state_list[next_state[NEXT_STATE_IDX]].reach_probability
-            if next_state_reach_prob < min_reach_prob:
-                min_reach_prob = next_state_reach_prob
-        return min_reach_prob
+            next_state_exp_rewards = state_list[next_state[NEXT_STATE_IDX]].expected_rewards
+            if next_state_exp_rewards > max_rewards:
+                max_rewards = next_state_exp_rewards
+        max_rewards += self.reward
+        return max_rewards
 
     def get_best_strategies_reachability(self, state_list):
         max_probability = 0
@@ -159,28 +147,9 @@ class PlayerNode(Node):
             elif next_state_reach_probability == max_probability:
                 best_strategies.append(action)
         return best_strategies
-
+    
     def prune_state(self, best_strategies):
         self.next_states = [(action, next_state) for action, next_state in self.next_states if action in best_strategies]
-
-    def value_iteration_rewards_max(self, state_list):
-        max_rewards = 0
-        for next_state in self.next_states:
-            next_state_exp_rewards = state_list[next_state[NEXT_STATE_IDX]].expected_rewards
-            if next_state_exp_rewards > max_rewards:
-                max_rewards = next_state_exp_rewards
-        max_rewards += self.reward
-        return max_rewards
-
-    def value_iteration_rewards_min(self, state_list):
-        # init min value with the value of the first state
-        min_rewards = state_list[self.next_states[0][NEXT_STATE_IDX]].expected_rewards
-        for next_state in self.next_states:
-            next_state_exp_rewards = state_list[next_state[NEXT_STATE_IDX]].expected_rewards
-            if next_state_exp_rewards < min_rewards:
-                min_rewards = next_state_exp_rewards
-        min_rewards += self.reward
-        return min_rewards
 
     def get_best_strategies_total_rewards(self, state_list):
         max_rewards = 0
@@ -198,84 +167,99 @@ class PlayerNode(Node):
         return best_strategies
 
 
-class Solver:
-    def __init__(self, threshold=0.01):
-        self.threshold = threshold
-        #TODO add state list as an attribute
+class PlayerTwo(Node):
 
-    def solve_reachability(self, state_list, transition_matrix, final_states):
+    def __init__(self, player, idx, reward, next_states, is_final_node=False):
+        super().__init__(player, idx, reward, next_states, is_final_node)
+
+    def value_iteration_reach(self, state_list):
+        min_reach_prob = 1
+        for next_state in self.next_states:
+            next_state_reach_prob = state_list[next_state[NEXT_STATE_IDX]].reach_probability
+            if next_state_reach_prob < min_reach_prob:
+                min_reach_prob = next_state_reach_prob
+        return min_reach_prob
+
+    def value_iteration_rewards(self, state_list):
+        # init min value with the value of the first state
+        min_rewards = state_list[self.next_states[0][NEXT_STATE_IDX]].expected_rewards
+        for next_state in self.next_states:
+            next_state_exp_rewards = state_list[next_state[NEXT_STATE_IDX]].expected_rewards
+            if next_state_exp_rewards < min_rewards:
+                min_rewards = next_state_exp_rewards
+        min_rewards += self.reward
+        return min_rewards
+
+
+class Solver:
+    def __init__(self, state_list, threshold=0.01):
+        self.state_list = state_list
+        self.threshold = threshold
+
+    def solve_reachability(self, transition_matrix, final_states):
         """This function calculates the probability to reach the final states for each state
             and returns a list of strategies for reachability for each state of player 1"""
         reachable_states = reverse_dfs(transition_matrix, final_states)
-        self.value_iteration_reachability(reachable_states, state_list)
-        reachability_strategies = self._get_reachability_strategies(state_list)
+        self.value_iteration_reachability(reachable_states)
+        reachability_strategies = self._get_reachability_strategies()
         return reachability_strategies
 
-    def value_iteration_reachability(self, reachable_states, state_list):
+    def value_iteration_reachability(self, reachable_states):
         diff = 1
         while diff > self.threshold:
             for state_idx in reachable_states:
-                state = state_list[state_idx]
-                if state.player == PLAYER_1:
-                    state.reach_probability_next = state.value_iteration_reach_max(state_list)
-                elif state.player == PLAYER_2:
-                    state.reach_probability_next = state.value_iteration_reach_min(state_list)
-                elif state.player == PROBABILISTIC:
-                    state.reach_probability_next = state.value_iteration_reach(state_list)
+                state = self.state_list[state_idx]
+                state.reach_probability_next = state.value_iteration_reach(self.state_list)
+                state.reach_probability_next = state.value_iteration_reach(self.state_list)
+                state.reach_probability_next = state.value_iteration_reach(self.state_list)
             
-            diff = max([abs(state_list[state_idx].reach_probability_next - state_list[state_idx].reach_probability) for state_idx in reachable_states])
+            diff = max([abs(self.state_list[state_idx].reach_probability_next - self.state_list[state_idx].reach_probability) for state_idx in reachable_states])
             for state_idx in reachable_states:
-                state = state_list[state_idx]
+                state = self.state_list[state_idx]
                 state.reach_probability = state.reach_probability_next
 
-    def _get_reachability_strategies(self, state_list):
+    def _get_reachability_strategies(self):
         """This function returns a list of strategies that maximize reachability for each state of player 1"""
         # strategies will be a list of lists, and it will have None if the player is not PLAYER_1
         # in the case of PLAYER_1, it will have a list of the best actions for that state
-        strategies = [None] * len(state_list)
-        for state in state_list:
+        strategies = [None] * len(self.state_list)
+        for state in self.state_list:
             if state.player == PLAYER_1:
-                strategies[state.idx] = state.get_best_strategies_reachability(state_list)
+                strategies[state.idx] = state.get_best_strategies_reachability(self.state_list)
         return strategies
 
-
-    def solve_total_rewards(self, state_list, transition_matrix, reachability_strategies):
-        """This function returns a list of strategies for total rewards.
-            It receives a list of strategies that maximize reachability
-            and it has to return a list of strategies that maximize total rewards for those strategies"""
-        
-        # TODO [YES] NEW PRUNE function to better modularity
-        # call it from stochastic games
-        for idx, state in enumerate(state_list):
+    def prune_states(self, reachability_strategies):
+        for idx, state in enumerate(self.state_list):
             if state.player == PLAYER_1:
                 state.prune_state(reachability_strategies[idx])
                 # TODO [mmm]: BORRAR NODOS
                 # si cortamos un camino que llegaba a un nodo que no tiene otra forma de ser accedido, ese nodo ya no es alcanzable
                 # pero no hace falta hacer nada al respecto, si no nos preocupa la eficiencia
 
-        self.value_iteration_total_rewards(state_list)
-        total_rewards_strategies = self._get_total_rewards_strategies(state_list)
+    def solve_total_rewards(self):
+        """This function returns a list of strategies for total rewards.
+            It receives a list of strategies that maximize reachability
+            and it has to return a list of strategies that maximize total rewards for those strategies"""
+        self.value_iteration_total_rewards()
+        total_rewards_strategies = self._get_total_rewards_strategies()
         return total_rewards_strategies
 
-    def value_iteration_total_rewards(self, state_list):
+    def value_iteration_total_rewards(self):
         diff = 1
         while diff > self.threshold:
-            for state in state_list:
-                if state.player == PLAYER_1:
-                    state.expected_rewards_next = state.value_iteration_rewards_max(state_list)
-                elif state.player == PLAYER_2:
-                    state.expected_rewards_next = state.value_iteration_rewards_min(state_list)
-                elif state.player == PROBABILISTIC:
-                    state.expected_rewards_next = state.value_iteration_rewards(state_list)
+            for state in self.state_list:
+                state.expected_rewards_next = state.value_iteration_rewards(self.state_list)
+                state.expected_rewards_next = state.value_iteration_rewards(self.state_list)
+                state.expected_rewards_next = state.value_iteration_rewards(self.state_list)
             
-            diff = max([abs(state.expected_rewards_next - state.expected_rewards) for state in state_list])
-            for state in state_list:
+            diff = max([abs(state.expected_rewards_next - state.expected_rewards) for state in self.state_list])
+            for state in self.state_list:
                 state.expected_rewards = state.expected_rewards_next
 
-    def _get_total_rewards_strategies(self, state_list):
+    def _get_total_rewards_strategies(self):
         """This function returns a list of strategies that maximize total rewards""" 
-        strategies = [None] * len(state_list)
-        for state in state_list:
+        strategies = [None] * len(self.state_list)
+        for state in self.state_list:
             if state.player == PLAYER_1:
-                strategies[state.idx] = state.get_best_strategies_total_rewards(state_list)
+                strategies[state.idx] = state.get_best_strategies_total_rewards(self.state_list)
         return strategies
