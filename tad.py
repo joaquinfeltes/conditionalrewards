@@ -1,6 +1,3 @@
-# EL ALGORITMO QUE TENGO QUE HACER ES EL QUE RESUELVE LAS BELLMAN EQUATIONS (CREO)
-
-# voy a hacer la clase del juego estocastico, una clase para cada nodo
 import numpy as np
 import random
 from reverse_dfs import reverse_dfs
@@ -21,12 +18,21 @@ class StochasticGame:
 
     def __init__(self, reward_list, transition_matrix, final_states):
         self.reward_list = reward_list
-        self.final_states = final_states
+        #TODO transition matrix could be a list of tuples, with the first element being
+        # the player that controls the state, and the second element being the transition in that position
         self.transition_matrix = transition_matrix
+        self.final_states = final_states
         self.num_states = len(self.transition_matrix[FIRST_PLAYER])
 
     def init_states(self):
         state_list = [None] * self.num_states
+        if len(self.transition_matrix) != 3:
+            raise ValueError("The transition matrix must have 3 elements, one for each player and one for the probabilistic nodes.")
+        if len(self.transition_matrix[SECOND_PLAYER]) != self.num_states or \
+            len(self.transition_matrix[PROBABILISTIC_PLAYER]) != self.num_states:
+            raise ValueError("The transition matrix must have the same number of states for each player.")
+        if len(self.reward_list) != self.num_states:
+            raise ValueError("The reward list must have the same number of elements as states in the game.")
 
         for state_n, transitions in enumerate(self.transition_matrix[FIRST_PLAYER]):
             if transitions:
@@ -49,16 +55,7 @@ class StochasticGame:
             raise ValueError(f"Transition for state {idx} is not defined")
         return state_list
 
-        # I dont need this function
-    # def _set_game_for_reachability(self, state_list):
-    #     state_list_for_reachability = []
-    #     for state in state_list:
-    #         state_for_reachabiliy = state.set_node_for_reachabily()
-    #         state_list_for_reachability.append(state_for_reachabiliy)
-    #     return state_list_for_reachability
-
     def solve_reachability(self, state_list):
-        # state_list = self._set_game_for_reachability(state_list)
         reachability_strategies = Solver().solve_reachability(
             state_list=state_list,
               transition_matrix=self.transition_matrix, final_states=self.final_states)
@@ -89,8 +86,19 @@ class Node:
         self.is_final_node = is_final_node
         self.reach_probability = 1 if is_final_node else 0
         self.reach_probability_next = 0
-        self.expected_rewards = reward # TODO: hay que iniciar con 0 o con reward?
+        self.expected_rewards = reward
         self.expected_rewards_next = 0
+
+    def __eq__(self, other):
+        if not isinstance(other, Node):
+            return NotImplemented
+        return (
+            self.player == other.player and
+            self.idx == other.idx and
+            self.reward == other.reward and
+            self.next_states == other.next_states and
+            self.is_final_node == other.is_final_node
+        )
 
 
 class ProbabilisticNode(Node):
@@ -110,12 +118,6 @@ class ProbabilisticNode(Node):
         probabilities, next_states = zip(*self.next_states)
         # random.choices returns a list with one element
         return random.choices(next_states, probabilities)[0]
-
-    # def set_node_for_reachabily(self):
-    #     reward = 1 if self.is_final_node else 0
-    #     return ProbabilisticNode( 
-    #         player=PROBABILISTIC, idx=self.idx, reward=reward,
-    #         next_states= self.next_states, is_final_node=self.is_final_node)
 
     def value_iteration_reach(self, state_list):
         value = 0
@@ -142,18 +144,11 @@ class PlayerNode(Node):
 
 
     # TODO: no uso en un principio el dict ni esta funcion, pero podria ser mas prolijo
-    # igual hay que arreglarlo, porque necesita el state list
+    # igual hay que arreglarlo, porque necesita el state list para que devuelva el objeto estado y no el indice
     def get_next_state(self, action):
         return self.next_states_dict[action]
 
-    # def set_node_for_reachabily(self):
-    #     reward = 1 if self.is_final_node else 0
-    #     return PlayerNode(
-    #         player=self.player, idx=self.idx, reward=reward,
-    #         next_states=self.next_states)
-    
-
-    #this two functions can probably be merged with the value iteration functions
+    # TODO: this two functions can probably be merged with the value iteration functions
     def get_best_strategies_reachability(self, state_list):
         max_probability = 0
         best_strategies = []
@@ -227,12 +222,12 @@ class Solver:
         pass
 
     def solve_reachability(self, state_list, transition_matrix, final_states):
-        """This function returns a list of strategies for reachability"""
+        """This function calculates the probability to reach the final states for each state
+            and returns a list of strategies for reachability for each state of player 1"""
         reachable_states = reverse_dfs(transition_matrix, final_states)
 
         not_reachable_states = [state for state in state_list if state.idx not in reachable_states]
         
-        # Usando value iteration
         diff = 1
         while diff > self.threshold:
             for state_idx in reachable_states:
@@ -250,25 +245,20 @@ class Solver:
                 _state.reach_probability = _state.reach_probability_next
 
         reachability_strategies = self._get_reachability_strategies(state_list)
-        # Ahora para cada estado hay que ver cual es la mejor estrategia, 
-        # puede ser que haya varias, que es el caso interesante, entonces devolvemos 
-        # una lista de estrategias
         return reachability_strategies
 
 
     def _get_reachability_strategies(self, state_list):
-        """This function returns a list of strategies that maximize reachability"""
+        """This function returns a list of strategies that maximize reachability for each state of player 1"""
+        # strategies will be a list of lists, and it will have None if the player is not PLAYER_1
+        # in the case of PLAYER_1, it will have a list of the best actions for that state
         strategies = [None] * len(state_list)
         for state in state_list:
             if state.player == PLAYER_1:
                 strategies[state.idx] = state.get_best_strategies_reachability(state_list)
-        
-        # strategies will be a list of lists, and it will have None if the player is not PLAYER_1
-        # in the case of PLAYER_1, it will have a list of the best actions for that state
-        
+    
         # TODO it might be smarter to just prune the strategies for player one here 
-        # and return state_list modified
-        # and I could also return the strategies.
+        # and return the modified state_list and the strategies.
         return strategies
 
 
@@ -283,6 +273,7 @@ class Solver:
                 # TODO: si cortamos un camino que llegaba a un nodo que no tiene otra forma de ser accedido, ese nodo ya no es alcanzable
                 # pero no hace falta hacer nada al respecto, si no nos preocupa la eficiencia
 
+        # TODO Este while deberia ser una nueva funcion para testearla mejor
         diff = 1
         while diff > self.threshold:
             for state in state_list:
@@ -297,8 +288,6 @@ class Solver:
             for state in state_list:
                 state.expected_rewards = state.expected_rewards_next
 
-        import ipdb; ipdb.set_trace()
-        #TODO hacer 5.8, la recompensa condicionada 
         total_rewards_strategies = self._get_total_rewards_strategies(state_list)
         return total_rewards_strategies
 
@@ -309,9 +298,4 @@ class Solver:
         for state in state_list:
             if state.player == PLAYER_1:
                 strategies[state.idx] = state.get_best_strategies_total_rewards(state_list)
-        
-        # strategies will be a list of lists, where the index of the list is the state
-        # The value will be None if the player that control that state is not PLAYER_1.
-        # in the case of PLAYER_1, it will have a list of the best actions for that state.
-        
         return strategies
