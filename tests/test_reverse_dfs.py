@@ -37,7 +37,6 @@ def test_reverse_transition_matrix_core(transition_matrix):
 # ------------------  test for reverse_transition_matrix ----------------------
 
 
-#TODO: test typing and type hints
 def test_reverse_transition_matrix(transition_matrix):
     reversed_transitions = reverse_transition_matrix(transition_matrix)
     expected_reversed_transitions = {1: [0], 2: [0], 4: [3, 1, 4], 5: [3, 2, 5], 3: [1], 6: [2, 6], 0: []}

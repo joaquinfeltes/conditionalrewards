@@ -14,60 +14,19 @@ from tad import (
 #TODO: set fixtures instead of importing them
 from tests.node_fixtures import *
 
+#TODO: do test typing and type hints
 
 def init_reachability(state_list, reach_probability_list):
     # Hardcode the reach probability to each state
     for state, reach_probability in zip(state_list, reach_probability_list):
         state.reach_probability = reach_probability
 
-
 #----------------------------------------ProbabilisticNode----------------------------------------#
-
-def test_probabilistic_node_is_loop_node_false():
-    probabilistic_node_with_two_neighbors = ProbabilisticNode(
-        player=PROBABILISTIC,
-        idx=0,
-        reward=0,
-        next_states=[
-            (0.5, 1),
-            (0.5, 2),
-        ],
-        is_final_node=False,
-    )
-    assert probabilistic_node_with_two_neighbors.is_loop_node == False
-
-
-def test_probabilistic_node_is_loop_node_false_2():
-    probabilistic_node_with_one_neighboor = ProbabilisticNode(
-        player=PROBABILISTIC,
-        idx=0,
-        reward=0,
-        next_states=[
-            (1, 1),
-        ],
-        is_final_node=False,
-    )
-    assert probabilistic_node_with_one_neighboor.is_loop_node == False
-
-
-def test_probabilistic_node_is_loop_node_true():
-    probabilistic_node_loop = ProbabilisticNode(
-        player=PROBABILISTIC,
-        idx=0,
-        reward=0,
-        next_states=[
-            (1, 0),
-            ],
-        is_final_node=False,
-    )
-    assert probabilistic_node_loop.is_loop_node == True
-
 
 def test_value_iteration_reach(node_0, state_list_simple):
     assert node_0.value_iteration_reach(state_list_simple) == 0.5
 
 
-#TODO hacer 5.8, la recompensa condicionada 
 def test_value_iteration_rewards(node_0, state_list_simple):
     # At this moment we don't take into account if the state reaches a final state
     assert node_0.value_iteration_rewards(state_list_simple) == 3.5
@@ -75,6 +34,7 @@ def test_value_iteration_rewards(node_0, state_list_simple):
     init_reachability(state_list_simple, [1/2, 1, 0])
     assert node_0.value_iteration_rewards(state_list_simple) == 3.5
     
+    # recompensa condicionada:
     # If we take into account if the state reaches a final state
     # assert node_0.value_iteration_rewards(state_list_simple) == 1.75
     # no estoy seguro si la idea es que se multiplique ppor la probabilidad de llegar en cada
@@ -82,13 +42,6 @@ def test_value_iteration_rewards(node_0, state_list_simple):
 
 
 #----------------------------------------PlayerNode----------------------------------------#
-
-def test_player_node_get_next_state(player_node_0):
-    expected_next_state_a = 1
-    expected_next_state_b = 2
-    assert player_node_0.get_next_state("a") == expected_next_state_a
-    assert player_node_0.get_next_state("b") == expected_next_state_b
-
 
 def test_player_node_get_best_strategies_reachability(player_node_0, state_list_w_player_at_start):
     expected_best_strategies = ["a"]
@@ -194,6 +147,9 @@ def test_player_node_value_iteration_rewards_full(
 
 
 #----------------------------------------Solver----------------------------------------#
+
+#TODO: add tests for value iteration reachability and total rewards
+
 
 def test_get_reachability_strategies(state_list_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
