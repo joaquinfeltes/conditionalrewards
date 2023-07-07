@@ -6,10 +6,7 @@ from tad import (
     PROBABILISTIC,
     Solver,
     )
-
-#TODO: set fixtures instead of importing them
-from tests.node_fixtures import *
-
+    
 #TODO: do test typing and type hints
 
 def init_reachability(state_list, reach_probability_list):
