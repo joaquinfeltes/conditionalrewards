@@ -5,7 +5,6 @@ from reverse_dfs import (
     reverse_transition_list,
     reverse_dfs,
     )
-# from typing import List, Tuple, Dict
 
 
 # ------------------ test for list_of_tuples_to_dict_of_lists -----------------
