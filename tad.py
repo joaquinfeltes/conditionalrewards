@@ -84,8 +84,6 @@ class Node:
         self.expected_rewards_next = 0
 
     def __eq__(self, other):
-        if not isinstance(other, Node):
-            return NotImplemented
         return (
             self.player == other.player and
             self.idx == other.idx and
@@ -159,7 +157,7 @@ class PlayerOne(Node):
         best_strategies = []
         for action, next_state_idx in self.next_states:
             _next_state = state_list[next_state_idx]
-            # TODO: [PEDRO] Recompensa condicionada
+            # TODO: Recompensa condicionada
             # no estoy seguro si es acá o en cada iteracion del value iteration
             next_state_expected_rewards = \
                 _next_state.expected_rewards * _next_state.reach_probability
@@ -243,7 +241,7 @@ class Solver:
         for idx, state in enumerate(self.state_list):
             if state.player == PLAYER_1:
                 state.prune_state(reachability_strategies[idx])
-                # TODO [mmm]: BORRAR NODOS
+                # TODO: BORRAR NODOS
                 # si cortamos un camino que llegaba a un nodo
                 # que no tiene otra forma de ser accedido, ese nodo ya no es alcanzable
                 # pero no hace falta hacer nada al respecto, si no nos preocupa la eficiencia

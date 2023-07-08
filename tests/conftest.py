@@ -29,6 +29,19 @@ def node_0():
 
 
 @pytest.fixture
+def node_1():
+    return ProbabilisticNode(
+        player=PROBABILISTIC,
+        idx=1,
+        reward=2,
+        next_states=[
+            (1, 1),
+        ],
+        is_final_node=False,
+    )
+
+
+@pytest.fixture
 def node_1_final():
     return ProbabilisticNode(
         player=PROBABILISTIC,
@@ -61,6 +74,12 @@ def state_list_simple(node_0, node_1_final, node_2):
     for node in state_list:
         if node.is_final_node:
             node.reach_probability = 1
+    return state_list
+
+
+@pytest.fixture
+def state_list_no_final(node_0, node_1, node_2):
+    state_list = [node_0, node_1, node_2]
     return state_list
 
 
@@ -419,8 +438,6 @@ def stochastic_game_game_5_5_same_reach(
 
 # ----------------------------------------------------------------------------#
 # Stochastic games with errors
-# TODO Borrar los que ya no uso
-# TODO agregar uno para el que no hay final states ( creo que es para solver igual)
 
 @pytest.fixture
 def stochastic_game_first_state_without_transitions():
@@ -429,7 +446,7 @@ def stochastic_game_first_state_without_transitions():
         rewards=[0, 0, 0],
         final_states=[2],
         transition_list=[
-            None, [1, 2], [1, 2]
+            None, [(1, 2)], [(1, 2)]
             ],
     )
 
@@ -441,7 +458,7 @@ def stochastic_game_incomplete_rewards():
         rewards=[0, 0],
         final_states=[2],
         transition_list=[
-            [1, 1], [1, 2], [1, 2]
+            [(1, 1)], [(1, 2)], [(1, 2)]
             ],
     )
 
@@ -453,7 +470,7 @@ def stochastic_game_incomplete_players():
         rewards=[0, 0, 0],
         final_states=[2],
         transition_list=[
-            [1, 2], [1, 2], [1, 2]
+            [(1, 2)], [(1, 2)], [(1, 2)]
             ],
     )
 
@@ -465,19 +482,6 @@ def stochastic_game_incomplete_transition_list():
         rewards=[0, 0, 0],
         final_states=[2],
         transition_list=[
-            [1, 1], [1, 2]
-            ],
-    )
-
-
-# TODO usar en un test de solve o Solver()
-@pytest.fixture
-def stochastic_game_empty_final_states():
-    return StochasticGame(
-        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
-        rewards=[0, 0, 0],
-        final_states=[2],
-        transition_list=[
-            [1, 1], [1, 2], [1, 2]
+            [(1, 1)], [(1, 2)]
             ],
     )

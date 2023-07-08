@@ -3,7 +3,6 @@ import pytest
 from tad import Solver
 
 
-# TODO: do test typing and type hints
 def init_reachability(state_list, reach_probability_list):
     # Hardcode the reach probability to each state
     for state, reach_probability in zip(state_list, reach_probability_list):
@@ -43,22 +42,6 @@ def test_sg_init_incomplete_transition_list(stochastic_game_incomplete_transitio
         stochastic_game_incomplete_transition_list.init_states()
     assert str(e.value) == \
         "The transition list must have the same number of elements as states in the game."
-
-
-# TODO Borrar, creo que ya no sirven
-# def test_sg_init_incomplete_probabilistic_E(stochastic_game_incomplete_probabilistic):
-#     with pytest.raises(ValueError) as e:
-#         stochastic_game_incomplete_probabilistic.init_states()
-#     assert str(e.value) == \
-#         "The transition list must have the same number of states for each player."
-
-
-# def test_sg_init_incomplete_transition_list_E(stochastic_game_incomplete_transition_list):
-#     with pytest.raises(ValueError) as e:
-#         stochastic_game_incomplete_transition_list.init_states()
-#     assert str(e.value) == \
-#         "The transition list must have 3 elements, one for each player and one for " + \
-#         "the probabilistic nodes."
 
 
 def test_sg_solve(stochastic_game_game_5_5):
@@ -237,6 +220,14 @@ def test_solve_reachability_game_5_5_same_reach(
         transition_list_game_5_5_same_reach, final_states_game_5_5_same_reach)
     expected_reachability_strategies = [["alfa", "beta"], None, None, None, None, None, None, None]
     assert reachability_strategies == expected_reachability_strategies
+
+
+def test_solve_reachability_no_final_states(state_list_no_final):
+    final_states = []
+    transition_list = [[(1, 1)], [(1, 1)], [(1, 2)]]
+    with pytest.raises(ValueError) as e:
+        Solver(state_list_no_final).solve_reachability(transition_list, final_states)
+    assert str(e.value) == "There must be at least one final state to solve reachability."
 
 
 def test_value_iteration_reachability(state_list_game_5_5):
