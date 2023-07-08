@@ -116,6 +116,29 @@ def state_list_w_player_two_at_start(player_two_node_0, node_1_final, node_2):
     return state_list
 
 
+@pytest.fixture
+def node_2_lower_rewards():
+    return ProbabilisticNode(
+        player=PROBABILISTIC,
+        idx=2,
+        reward=1,
+        next_states=[
+            (1, 2),
+        ],
+        is_final_node=False,
+    )
+
+
+@pytest.fixture
+def state_list_w_player_two_at_start_lower_rewards(
+        player_two_node_0, node_1_final, node_2_lower_rewards):
+    state_list = [player_two_node_0, node_1_final, node_2_lower_rewards]
+    for node in state_list:
+        if node.is_final_node:
+            node.reach_probability = 1
+    return state_list
+
+
 # ----------------------------------------------------------------------------#
 # graph with 3 nodes one for player 1 and two final ones
 
