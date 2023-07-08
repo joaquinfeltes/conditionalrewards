@@ -311,24 +311,18 @@ def state_list_game_5_5(
 
 
 @pytest.fixture
-def transition_matrix_game_5_5(state_list_game_5_5):
+def transition_list_game_5_5():
     return [
-        [[('alfa', 1), ('beta', 2)], None, None, None, None, None, None, None],
-        [None, [(' ', 3)], [(' ', 4)], None, None, None, None, None],
-        [None, None, None, [(0.5, 5), (0.5, 6)], [(0.75, 6), (0.25, 7)], [(1, 5)],
-         [(1, 6)], [(1, 7)]]
+        [('alfa', 1), ('beta', 2)], [(' ', 3)], [(' ', 4)],
+        [(0.5, 5), (0.5, 6)], [(0.75, 6), (0.25, 7)],
+        [(1, 5)], [(1, 6)], [(1, 7)]
     ]
-    # SI cambio la transition matrix por una lista de transiciones.
-    # [
-    # ("player 1", [('alfa', 1), ('beta', 2
-    # ("player 2", [('x', 3)]),
-    # ("player 2", [('z', 4)]),
-    # ("probabilistic", [(0.5, 5), (0.5, 6)]),
-    # ("probabilistic", [(0.75, 6), (0.25, 7)]),
-    # ("probabilistic", [(1, 5)]),
-    # ("probabilistic", [(1, 6)]),
-    # ("probabilistic", [(1, 7)])
-    # ]
+
+
+@pytest.fixture
+def players_game_5_5():
+    return [PLAYER_1, PLAYER_2, PLAYER_2, PROBABILISTIC, PROBABILISTIC,
+            PROBABILISTIC, PROBABILISTIC, PROBABILISTIC]
 
 
 @pytest.fixture
@@ -373,12 +367,18 @@ def state_list_game_5_5_same_reach(
 
 
 @pytest.fixture
-def transition_matrix_game_5_5_same_reach(state_list_game_5_5_same_reach):
+def transition_list_game_5_5_same_reach():
     return [
-        [[('alfa', 1), ('beta', 2)], None, None, None, None, None, None, None],
-        [None, [(' ', 3)], [(' ', 4)], None, None, None, None, None],
-        [None, None, None, [(0.5, 5), (0.5, 6)], [(0.5, 6), (0.5, 7)], [(1, 5)], [(1, 6)], [(1, 7)]]
+        [('alfa', 1), ('beta', 2)], [(' ', 3)], [(' ', 4)],
+        [(0.5, 5), (0.5, 6)], [(0.5, 6), (0.5, 7)],
+        [(1, 5)], [(1, 6)], [(1, 7)]
         ]
+
+
+@pytest.fixture
+def players_game_5_5_same_reach():
+    return [PLAYER_1, PLAYER_2, PLAYER_2, PROBABILISTIC, PROBABILISTIC,
+            PROBABILISTIC, PROBABILISTIC, PROBABILISTIC]
 
 
 @pytest.fixture
@@ -395,99 +395,89 @@ def reachability_strategies_game_5_5_same_reach():
 # graph of figure 5.5 from the paper, as a stochastic game
 
 @pytest.fixture
-def stochastic_game_game_5_5(transition_matrix_game_5_5, final_states_game_5_5):
+def stochastic_game_game_5_5(transition_list_game_5_5, players_game_5_5, final_states_game_5_5):
     return StochasticGame(
-        reward_list=[0, 2, 5/3, 0, 0, 0, 0, 0],
+        players=players_game_5_5,
+        rewards=[0, 2, 5/3, 0, 0, 0, 0, 0],
         final_states=final_states_game_5_5,
-        transition_matrix=transition_matrix_game_5_5,
+        transition_list=transition_list_game_5_5,
     )
 
 
 @pytest.fixture
 def stochastic_game_game_5_5_same_reach(
-        transition_matrix_game_5_5_same_reach, final_states_game_5_5_same_reach):
+        transition_list_game_5_5_same_reach,
+        players_game_5_5_same_reach,
+        final_states_game_5_5_same_reach):
     return StochasticGame(
-        reward_list=[0, 2, 5/3, 0, 0, 0, 0, 0],
+        players=players_game_5_5_same_reach,
+        rewards=[0, 2, 5/3, 0, 0, 0, 0, 0],
         final_states=final_states_game_5_5_same_reach,
-        transition_matrix=transition_matrix_game_5_5_same_reach,
+        transition_list=transition_list_game_5_5_same_reach,
     )
 
 
 # ----------------------------------------------------------------------------#
 # Stochastic games with errors
+# TODO Borrar los que ya no uso
+# TODO agregar uno para el que no hay final states ( creo que es para solver igual)
 
 @pytest.fixture
 def stochastic_game_first_state_without_transitions():
     return StochasticGame(
-        reward_list=[0, 0, 0],
-        final_states=[],
-        transition_matrix=[
-            [None, None, None],
-            [None, None, None],
-            [None, [1, 2], [1, 2]],
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
+        final_states=[2],
+        transition_list=[
+            None, [1, 2], [1, 2]
             ],
     )
 
 
 @pytest.fixture
-def stochastic_game_incomplete_reward_list():
+def stochastic_game_incomplete_rewards():
     return StochasticGame(
-        reward_list=[0, 0],
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0],
         final_states=[2],
-        transition_matrix=[
-            [None, None, None],
-            [None, None, None],
-            [[1, 1], [1, 2], [1, 2]],
+        transition_list=[
+            [1, 1], [1, 2], [1, 2]
             ],
     )
 
 
 @pytest.fixture
-def stochastic_game_incomplete_player_one():
+def stochastic_game_incomplete_players():
     return StochasticGame(
-        reward_list=[0, 0, 0],
+        players=[PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
         final_states=[2],
-        transition_matrix=[
-            [None, None],
-            [None, None, None],
-            [[1, 1], [1, 2], [1, 2]],
+        transition_list=[
+            [1, 2], [1, 2], [1, 2]
             ],
     )
 
 
 @pytest.fixture
-def stochastic_game_incomplete_player_two():
+def stochastic_game_incomplete_transition_list():
     return StochasticGame(
-        reward_list=[0, 0, 0],
+        players=[PROBABILISTIC, PROBABILISTIC, PLAYER_2],
+        rewards=[0, 0, 0],
         final_states=[2],
-        transition_matrix=[
-            [None, None, None],
-            [None, None],
-            [[1, 1], [1, 2], [1, 2]],
+        transition_list=[
+            [1, 1], [1, 2]
             ],
     )
 
 
+# TODO usar en un test de solve o Solver()
 @pytest.fixture
-def stochastic_game_incomplete_probabilistic():
+def stochastic_game_empty_final_states():
     return StochasticGame(
-        reward_list=[0, 0, 0],
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
         final_states=[2],
-        transition_matrix=[
-            [None, None, [("a", 2)]],
-            [None, None, None],
-            [[1, 1], [1, 2]],
-            ],
-    )
-
-
-@pytest.fixture
-def stochastic_game_incomplete_transition_matrix():
-    return StochasticGame(
-        reward_list=[0, 0, 0],
-        final_states=[2],
-        transition_matrix=[
-            [None, None, None],
-            [[1, 1], [1, 2], [1, 2]],
+        transition_list=[
+            [1, 1], [1, 2], [1, 2]
             ],
     )

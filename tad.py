@@ -6,69 +6,60 @@ PROBABILISTIC = "Probabilistic"
 ACTION = 0
 PROBABILITY = 0
 NEXT_STATE_IDX = 1
-FIRST_PLAYER = 0
-SECOND_PLAYER = 1
-PROBABILISTIC_PLAYER = 2
 
 
 class StochasticGame:
     """A stochastic game, with two players,
     a reward list, a set of final states and a transition matrix. All rewards are positive."""
 
-    def __init__(self, reward_list, transition_matrix, final_states):
-        self.reward_list = reward_list
-        # TODO [yes] LIST OF TUPLES
-        # transition matrix could be a list of tuples, with the first element being
-        # the player that controls the state,
-        # and the second element being the transition in that position
-        self.transition_matrix = transition_matrix
+    def __init__(self, rewards, players, transition_list, final_states):
+        self.rewards = rewards
+        self.players = players
+        self.transition_list = transition_list
         self.final_states = final_states
-        self.num_states = len(self.transition_matrix[FIRST_PLAYER])
+        self.num_states = len(self.players)
 
     def init_states(self):
-        state_list = [None] * self.num_states
-        # If the matrix is a list instead of 3 lists, this raise is not needed
-        if len(self.transition_matrix) != 3:
+        if len(self.transition_list) != self.num_states:
             raise ValueError(
-                "The transition matrix must have 3 elements, "
-                "one for each player and one for the probabilistic nodes.")
-        if len(self.transition_matrix[SECOND_PLAYER]) != self.num_states or \
-                len(self.transition_matrix[PROBABILISTIC_PLAYER]) != self.num_states:
-            raise ValueError(
-                "The transition matrix must have the same number of states for each player.")
-        if len(self.reward_list) != self.num_states:
+                "The transition list must have the same number of elements as states in the game.")
+
+        if len(self.rewards) != self.num_states:
             raise ValueError(
                 "The reward list must have the same number of elements as states in the game.")
 
-        for state_n, transitions in enumerate(self.transition_matrix[FIRST_PLAYER]):
-            if transitions:
-                state_list[state_n] = PlayerOne(
-                    player=PLAYER_1, idx=state_n, next_states=transitions,
-                    reward=self.reward_list[state_n])
+        state_list = []
 
-        for state_n, transitions in enumerate(self.transition_matrix[SECOND_PLAYER]):
+        for idx, (player, transitions, reward) in enumerate(
+                zip(self.players, self.transition_list, self.rewards)):
             if transitions:
-                state_list[state_n] = PlayerTwo(
-                    player=PLAYER_2, idx=state_n, next_states=transitions,
-                    reward=self.reward_list[state_n])
+                if player == PLAYER_1:
+                    state_list.append(PlayerOne(
+                        player=player, idx=idx, next_states=transitions,
+                        reward=reward,
+                        is_final_node=(idx in self.final_states)))
 
-        for state_n, transitions in enumerate(self.transition_matrix[PROBABILISTIC_PLAYER]):
-            if transitions:
-                state_list[state_n] = ProbabilisticNode(
-                    player=PROBABILISTIC, idx=state_n,
-                    next_states=transitions, reward=self.reward_list[state_n],
-                    is_final_node=(state_n in self.final_states))
+                elif player == PLAYER_2:
+                    state_list.append(PlayerTwo(
+                        player=player, idx=idx, next_states=transitions,
+                        reward=reward,
+                        is_final_node=(idx in self.final_states)))
 
-        if None in state_list:
-            idx = state_list.index(None)
-            raise ValueError(f"Transition for state {idx} is not defined")
+                elif player == PROBABILISTIC:
+                    state_list.append(ProbabilisticNode(
+                        player=player, idx=idx, next_states=transitions,
+                        reward=reward,
+                        is_final_node=(idx in self.final_states)))
+
+        if not len(state_list) == self.num_states:
+            raise ValueError("Missing transitions")
         return state_list
 
     def solve(self):
         state_list = self.init_states()
         solver = Solver(threshold=0.01, state_list=state_list)
         reachability_strategies = solver.solve_reachability(
-            self.transition_matrix, self.final_states)
+            self.transition_list, self.final_states)
         solver.prune_states(reachability_strategies)
         final_strategies = solver.solve_total_rewards()
         return final_strategies
@@ -209,10 +200,14 @@ class Solver:
         self.state_list = state_list
         self.threshold = threshold
 
-    def solve_reachability(self, transition_matrix, final_states):
+    def solve_reachability(self, transition_list, final_states):
         """This function calculates the probability to reach the final states for each state
             and returns a list of strategies for reachability for each state of player 1"""
-        reachable_states = reverse_dfs(transition_matrix, final_states)
+
+        if not final_states:
+            raise ValueError("There must be at least one final state to solve reachability.")
+
+        reachable_states = reverse_dfs(transition_list, final_states)
         self.value_iteration_reachability(reachable_states)
         reachability_strategies = self._get_reachability_strategies()
         return reachability_strategies

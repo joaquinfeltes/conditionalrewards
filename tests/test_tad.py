@@ -21,43 +21,44 @@ def test_sg_init_states(stochastic_game_game_5_5, state_list_game_5_5):
 def test_sg_init_states_missing_transition(stochastic_game_first_state_without_transitions):
     with pytest.raises(ValueError) as e:
         stochastic_game_first_state_without_transitions.init_states()
-    assert str(e.value) == "Transition for state 0 is not defined"
+    assert str(e.value) == "Missing transitions"
 
 
-def test_sg_init_incomplete_reward_list(stochastic_game_incomplete_reward_list):
+def test_sg_init_incomplete_rewards(stochastic_game_incomplete_rewards):
     with pytest.raises(ValueError) as e:
-        stochastic_game_incomplete_reward_list.init_states()
+        stochastic_game_incomplete_rewards.init_states()
     assert str(e.value) == \
         "The reward list must have the same number of elements as states in the game."
 
 
-def test_sg_init_incomplete_player_one(stochastic_game_incomplete_player_one):
+def test_sg_init_incomplete_players(stochastic_game_incomplete_players):
     with pytest.raises(ValueError) as e:
-        stochastic_game_incomplete_player_one.init_states()
+        stochastic_game_incomplete_players.init_states()
     assert str(e.value) == \
-        "The transition matrix must have the same number of states for each player."
+        "The transition list must have the same number of elements as states in the game."
 
 
-def test_sg_init_incomplete_player_two(stochastic_game_incomplete_player_two):
+def test_sg_init_incomplete_transition_list(stochastic_game_incomplete_transition_list):
     with pytest.raises(ValueError) as e:
-        stochastic_game_incomplete_player_two.init_states()
+        stochastic_game_incomplete_transition_list.init_states()
     assert str(e.value) == \
-        "The transition matrix must have the same number of states for each player."
+        "The transition list must have the same number of elements as states in the game."
 
 
-def test_sg_init_incomplete_probabilistic(stochastic_game_incomplete_probabilistic):
-    with pytest.raises(ValueError) as e:
-        stochastic_game_incomplete_probabilistic.init_states()
-    assert str(e.value) == \
-        "The transition matrix must have the same number of states for each player."
+# TODO Borrar, creo que ya no sirven
+# def test_sg_init_incomplete_probabilistic_E(stochastic_game_incomplete_probabilistic):
+#     with pytest.raises(ValueError) as e:
+#         stochastic_game_incomplete_probabilistic.init_states()
+#     assert str(e.value) == \
+#         "The transition list must have the same number of states for each player."
 
 
-def test_sg_init_incomplete_transition_matrix(stochastic_game_incomplete_transition_matrix):
-    with pytest.raises(ValueError) as e:
-        stochastic_game_incomplete_transition_matrix.init_states()
-    assert str(e.value) == \
-        "The transition matrix must have 3 elements, one for each player and one for " + \
-        "the probabilistic nodes."
+# def test_sg_init_incomplete_transition_list_E(stochastic_game_incomplete_transition_list):
+#     with pytest.raises(ValueError) as e:
+#         stochastic_game_incomplete_transition_list.init_states()
+#     assert str(e.value) == \
+#         "The transition list must have 3 elements, one for each player and one for " + \
+#         "the probabilistic nodes."
 
 
 def test_sg_solve(stochastic_game_game_5_5):
@@ -222,18 +223,18 @@ def test_players_value_iteration_rewards_full(
 # ----------------------------------------Solver----------------------------------------#
 
 def test_solve_reachability_game_5_5(
-        state_list_game_5_5, transition_matrix_game_5_5, final_states_game_5_5):
+        state_list_game_5_5, transition_list_game_5_5, final_states_game_5_5):
     reachability_strategies = Solver(state_list_game_5_5).solve_reachability(
-        transition_matrix_game_5_5, final_states_game_5_5)
+        transition_list_game_5_5, final_states_game_5_5)
     expected_reachability_strategies = [["beta"], None, None, None, None, None, None, None]
     assert reachability_strategies == expected_reachability_strategies
 
 
 def test_solve_reachability_game_5_5_same_reach(
-        state_list_game_5_5_same_reach, transition_matrix_game_5_5_same_reach,
+        state_list_game_5_5_same_reach, transition_list_game_5_5_same_reach,
         final_states_game_5_5_same_reach):
     reachability_strategies = Solver(state_list_game_5_5_same_reach).solve_reachability(
-        transition_matrix_game_5_5_same_reach, final_states_game_5_5_same_reach)
+        transition_list_game_5_5_same_reach, final_states_game_5_5_same_reach)
     expected_reachability_strategies = [["alfa", "beta"], None, None, None, None, None, None, None]
     assert reachability_strategies == expected_reachability_strategies
 
@@ -265,7 +266,7 @@ def test_prune_states(state_list_game_5_5):
 
 
 def test_solve_total_rewards(
-        state_list_game_5_5, transition_matrix_game_5_5, reachability_strategies_game_5_5):
+        state_list_game_5_5, transition_list_game_5_5, reachability_strategies_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
     # might need to prune before
     test_get_total_rewards_strategies = Solver(state_list_game_5_5).solve_total_rewards()
@@ -274,7 +275,7 @@ def test_solve_total_rewards(
 
 
 def test_solve_total_rewards_same_reach_alfa_better_rewards(
-        state_list_game_5_5_same_reach, transition_matrix_game_5_5_same_reach,
+        state_list_game_5_5_same_reach, transition_list_game_5_5_same_reach,
         reachability_strategies_game_5_5_same_reach):
     init_reachability(state_list_game_5_5_same_reach, [1/2, 1/2, 1/2, 1/2, 1/2, 0, 1, 0])
     test_get_total_rewards_strategies = Solver(state_list_game_5_5_same_reach).solve_total_rewards()
