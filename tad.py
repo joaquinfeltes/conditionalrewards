@@ -19,12 +19,7 @@ class StochasticGame:
         self.final_states = final_states
         self.num_states = len(self.players)
 
-    def init_states(self):
-        # TODO check that rewards only contains positives
-        # TODO check that final states are in the range of the number of states
-        # TODO check that transition list is a list of lists and every list has tuples,
-        # where the second element is a number in the range of the number of states 
-        # (this can be done in the node class)
+    def check_game(self):
         if len(self.transition_list) != self.num_states:
             raise ValueError(
                 "The transition list must have the same number of elements as states in the game.")
@@ -32,6 +27,18 @@ class StochasticGame:
         if len(self.rewards) != self.num_states:
             raise ValueError(
                 "The reward list must have the same number of elements as states in the game.")
+
+        if min(self.rewards) < 0:
+            raise ValueError("Rewards must be positive.")
+
+        if max(self.final_states) >= self.num_states or min(self.final_states) < 0:
+            raise ValueError("Final states must be in the range of the number of states.")
+        
+        for player in self.players:
+            if player not in [PLAYER_1, PLAYER_2, PROBABILISTIC]:
+                raise ValueError(f"Player must be {PLAYER_1}, {PLAYER_2} or {PROBABILISTIC}.")
+
+    def init_states(self):
 
         state_list = []
 
@@ -41,19 +48,19 @@ class StochasticGame:
                 if player == PLAYER_1:
                     state_list.append(PlayerOne(
                         player=player, idx=idx, next_states=transitions,
-                        reward=reward,
+                        reward=reward, num_states=self.num_states,
                         is_final_node=(idx in self.final_states)))
 
                 elif player == PLAYER_2:
                     state_list.append(PlayerTwo(
                         player=player, idx=idx, next_states=transitions,
-                        reward=reward,
+                        reward=reward, num_states=self.num_states,
                         is_final_node=(idx in self.final_states)))
 
                 elif player == PROBABILISTIC:
                     state_list.append(ProbabilisticNode(
                         player=player, idx=idx, next_states=transitions,
-                        reward=reward,
+                        reward=reward, num_states=self.num_states,
                         is_final_node=(idx in self.final_states)))
 
         if not len(state_list) == self.num_states:
@@ -68,6 +75,7 @@ class StochasticGame:
 
     def solve(self):
         print("Initializing stochastic game ...")
+        self.check_game()
         state_list = self.init_states()
         solver = Solver(threshold=0.01, state_list=state_list)
 
@@ -97,8 +105,7 @@ class Node:
     next_states: a list of tuples,
     every tuple contains the next state and an action or a probability."""
 
-    def __init__(self, player, idx, reward, next_states,
-                 is_final_node=False):
+    def __init__(self, player, idx, reward, next_states, num_states, is_final_node):
         self.player = player
         self.idx = idx
         self.reward = reward
@@ -108,6 +115,8 @@ class Node:
         self.reach_probability_next = 0
         self.expected_rewards = reward
         self.expected_rewards_next = 0
+        self.num_states = num_states
+        self.check_next_states()
 
     def __eq__(self, other):
         return (
@@ -118,12 +127,35 @@ class Node:
             self.is_final_node == other.is_final_node
         )
 
+    def check_next_states(self):
+        if not isinstance(self.next_states, list):
+            raise ValueError("Next states must be a list.")
 
-# TODO test that next states is a list contaning tuples,
-# and each tuple has a probability and a state (that is lower than num states)
+        for next_state in self.next_states:
+            if not isinstance(next_state, tuple):
+                raise ValueError("Next states must be a list of tuples.")
+
+            if len(next_state) != 2:
+                raise ValueError("Next states must be a list of tuples of length 2.")
+
+            if self.player == PLAYER_1 or self.player == PLAYER_2:
+                if not isinstance(next_state[ACTION], str):
+                    raise ValueError("The action must be a str.")
+
+            elif self.player == PROBABILISTIC:
+                if not isinstance(next_state[PROBABILITY], (int, float)):
+                    raise ValueError("The probability must be a number.")
+
+            if not isinstance(next_state[NEXT_STATE_IDX], int):
+                raise ValueError("The next state must be an int.")
+
+            if next_state[NEXT_STATE_IDX] < 0 or next_state[NEXT_STATE_IDX] >= self.num_states:
+                raise ValueError("The next state must be in the range of the number of states.")
+
+
 class ProbabilisticNode(Node):
-    def __init__(self, player, idx, reward, next_states, is_final_node):
-        super().__init__(player, idx, reward, next_states, is_final_node)
+    def __init__(self, player, idx, reward, next_states, num_states, is_final_node):
+        super().__init__(player, idx, reward, next_states, num_states, is_final_node)
 
     def value_iteration_reach(self, state_list):
         value = 0
@@ -143,8 +175,8 @@ class ProbabilisticNode(Node):
 
 class PlayerOne(Node):
 
-    def __init__(self, player, idx, reward, next_states, is_final_node=False):
-        super().__init__(player, idx, reward, next_states, is_final_node)
+    def __init__(self, player, idx, reward, next_states, num_states, is_final_node=False):
+        super().__init__(player, idx, reward, next_states, num_states, is_final_node)
 
     def value_iteration_reach(self, state_list):
         max_reach_prob = 0
@@ -199,8 +231,8 @@ class PlayerOne(Node):
 
 class PlayerTwo(Node):
 
-    def __init__(self, player, idx, reward, next_states, is_final_node=False):
-        super().__init__(player, idx, reward, next_states, is_final_node)
+    def __init__(self, player, idx, reward, next_states, num_states, is_final_node=False):
+        super().__init__(player, idx, reward, next_states, num_states, is_final_node)
 
     def value_iteration_reach(self, state_list):
         min_reach_prob = 1

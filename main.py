@@ -6,7 +6,6 @@ from example_games import GAMES
 # TODO hacer algo como time para ver cuanto tarda en resolver el juego
 # TODO hacer un archivo de configuracion para los juegos
 # TODO mandar resultados a un archivo de texto
-# TODO [MUST] devolver ademas de las estrategias, probabilidades
 
 
 def main():

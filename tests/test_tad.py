@@ -1,6 +1,11 @@
 import pytest
 
-from tad import Solver
+from tad import (
+    PLAYER_1,
+    PLAYER_2,
+    PROBABILISTIC,
+    Solver
+)
 
 
 def init_reachability(state_list, reach_probability_list):
@@ -23,23 +28,47 @@ def test_sg_init_states_missing_transition(stochastic_game_first_state_without_t
     assert str(e.value) == "Missing transitions"
 
 
-def test_sg_init_incomplete_rewards(stochastic_game_incomplete_rewards):
+def test_sg_check_game_incomplete_rewards(stochastic_game_incomplete_rewards):
     with pytest.raises(ValueError) as e:
-        stochastic_game_incomplete_rewards.init_states()
+        stochastic_game_incomplete_rewards.check_game()
     assert str(e.value) == \
         "The reward list must have the same number of elements as states in the game."
 
 
-def test_sg_init_incomplete_players(stochastic_game_incomplete_players):
+def test_sg_check_game_incomplete_players(stochastic_game_incomplete_players):
     with pytest.raises(ValueError) as e:
-        stochastic_game_incomplete_players.init_states()
+        stochastic_game_incomplete_players.check_game()
     assert str(e.value) == \
         "The transition list must have the same number of elements as states in the game."
 
 
-def test_sg_init_incomplete_transition_list(stochastic_game_incomplete_transition_list):
+def test_sg_check_game_negative_rewards(stochastic_game_negative_rewards):
     with pytest.raises(ValueError) as e:
-        stochastic_game_incomplete_transition_list.init_states()
+        stochastic_game_negative_rewards.check_game()
+    assert str(e.value) == "Rewards must be positive."
+
+
+def test_sg_check_game_final_out_of_range_min(stochastic_game_final_out_of_range_min):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_final_out_of_range_min.check_game()
+    assert str(e.value) == "Final states must be in the range of the number of states."
+
+
+def test_sg_check_game_final_out_of_range_max(stochastic_game_final_out_of_range_max):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_final_out_of_range_max.check_game()
+    assert str(e.value) == "Final states must be in the range of the number of states."
+
+
+def test_sg_check_game_unknown_player(stochastic_game_unknown_player):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_unknown_player.check_game()
+    assert str(e.value) == f"Player must be {PLAYER_1}, {PLAYER_2} or {PROBABILISTIC}."
+
+
+def test_sg_check_game_incomplete_transition_list(stochastic_game_incomplete_transition_list):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_incomplete_transition_list.check_game()
     assert str(e.value) == \
         "The transition list must have the same number of elements as states in the game."
 
@@ -58,6 +87,48 @@ def test_sg_solve_same_reach(stochastic_game_game_5_5_same_reach):
     expected_reachability_strategies = [['alfa', 'beta'], None, None, None, None, None, None, None]
     assert final_strategies == expected_final_strategies
     assert reachability_strategies == expected_reachability_strategies
+
+
+def test_sg_check_next_states_wrong_type_list(stochastic_game_next_states_wrong_type_list):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_next_states_wrong_type_list.init_states()
+    assert str(e.value) == "Next states must be a list."
+
+
+def test_sg_check_next_states_wrong_type_tuple(stochastic_game_next_states_wrong_type_tuple):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_next_states_wrong_type_tuple.init_states()
+    assert str(e.value) == "Next states must be a list of tuples."
+
+
+def test_sg_check_next_states_wrong_length(stochastic_game_next_states_bigger_tuple):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_next_states_bigger_tuple.init_states()
+    assert str(e.value) == "Next states must be a list of tuples of length 2."
+
+
+def test_sg_check_next_states_wrong_action_type(stochastic_game_next_states_wrong_action):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_next_states_wrong_action.init_states()
+    assert str(e.value) == "The action must be a str."
+
+
+def test_sg_check_next_states_wrong_prob(stochastic_game_next_states_wrong_prob):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_next_states_wrong_prob.init_states()
+    assert str(e.value) == "The probability must be a number."
+
+
+def test_sg_check_next_states_wrong_state_type(stochastic_game_next_states_wrong_state_type):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_next_states_wrong_state_type.init_states()
+    assert str(e.value) == "The next state must be an int."
+
+
+def test_sg_check_next_states_wrong_state_idx(stochastic_game_next_states_wrong_state_idx):
+    with pytest.raises(ValueError) as e:
+        stochastic_game_next_states_wrong_state_idx.init_states()
+    assert str(e.value) == "The next state must be in the range of the number of states."
 
 
 # ----------------------------------------ProbabilisticNode----------------------------------------#

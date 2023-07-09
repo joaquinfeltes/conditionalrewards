@@ -24,6 +24,7 @@ def node_0():
             (0.5, 1),
             (0.5, 2),
         ],
+        num_states=3,
         is_final_node=False,
     )
 
@@ -37,6 +38,7 @@ def node_1():
         next_states=[
             (1, 1),
         ],
+        num_states=3,
         is_final_node=False,
     )
 
@@ -50,6 +52,7 @@ def node_1_final():
         next_states=[
             (1, 1),
         ],
+        num_states=3,
         is_final_node=True,
     )
 
@@ -63,6 +66,7 @@ def node_2():
         next_states=[
             (1, 2),
         ],
+        num_states=3,
         is_final_node=False,
     )
 
@@ -97,6 +101,7 @@ def player_one_node_0():
             ("a", 1),
             ("b", 2),
         ],
+        num_states=3,
         is_final_node=False,
     )
     return player_one_node_0
@@ -121,6 +126,7 @@ def player_two_node_0():
             ("a", 1),
             ("b", 2),
         ],
+        num_states=3,
         is_final_node=False,
     )
     return player_two_node_0
@@ -144,6 +150,7 @@ def node_2_lower_rewards():
         next_states=[
             (1, 2),
         ],
+        num_states=3,
         is_final_node=False,
     )
 
@@ -170,6 +177,7 @@ def node_2_final():
         next_states=[
             (1, 2),
         ],
+        num_states=3,
         is_final_node=True,
     )
 
@@ -195,6 +203,7 @@ def node_2_final_eq_rew():
         next_states=[
             (1, 2),
         ],
+        num_states=3,
         is_final_node=True,
     )
 
@@ -221,6 +230,7 @@ def node_s0():
             ("alfa", 1),
             ("beta", 2),
         ],
+        num_states=8,
         is_final_node=False,
     )
 
@@ -234,6 +244,7 @@ def node_s1():
         next_states=[
             (" ", 3),
         ],
+        num_states=8,
         is_final_node=False,
     )
 
@@ -247,6 +258,7 @@ def node_s2():
         next_states=[
             (" ", 4),
         ],
+        num_states=8,
         is_final_node=False,
     )
 
@@ -261,6 +273,7 @@ def node_s3():
             (1/2, 5),
             (1/2, 6),
         ],
+        num_states=8,
         is_final_node=False,
     )
 
@@ -275,6 +288,7 @@ def node_s4():
             (3/4, 6),
             (1/4, 7),
         ],
+        num_states=8,
         is_final_node=False,
     )
 
@@ -288,6 +302,7 @@ def node_s5_bad():
         next_states=[
             (1, 5),
         ],
+        num_states=8,
         is_final_node=False,
     )
 
@@ -301,6 +316,7 @@ def node_s6_good():
         next_states=[
             (1, 6),
         ],
+        num_states=8,
         is_final_node=True,
     )
 
@@ -314,6 +330,7 @@ def node_s7_bad():
         next_states=[
             (1, 7),
         ],
+        num_states=8,
         is_final_node=False,
     )
 
@@ -368,6 +385,7 @@ def node_s4_eq_probs():
             (1/2, 6),
             (1/2, 7),
         ],
+        num_states=8,
         is_final_node=False,
     )
 
@@ -478,10 +496,142 @@ def stochastic_game_incomplete_players():
 @pytest.fixture
 def stochastic_game_incomplete_transition_list():
     return StochasticGame(
-        players=[PROBABILISTIC, PROBABILISTIC, PLAYER_2],
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
         rewards=[0, 0, 0],
         final_states=[2],
         transition_list=[
             [(1, 1)], [(1, 2)]
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_negative_rewards():
+    return StochasticGame(
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[-10, 0, 0],
+        final_states=[2],
+        transition_list=[
+            [(1, 1)], [(1, 2)], [(1, 2)]
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_final_out_of_range_min():
+    return StochasticGame(
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
+        final_states=[-1],
+        transition_list=[
+            [(1, 1)], [(1, 2)], [(1, 2)]
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_final_out_of_range_max():
+    return StochasticGame(
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
+        final_states=[3],
+        transition_list=[
+            [(1, 1)], [(1, 2)], [(1, 2)]
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_unknown_player():
+    return StochasticGame(
+        players=[PROBABILISTIC, PROBABILISTIC, "Player 3"],
+        rewards=[0, 0, 0],
+        final_states=[2],
+        transition_list=[
+            [(1, 1)], [(1, 2)], [(1, 2)]
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_next_states_wrong_type_list():
+    return StochasticGame(
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
+        final_states=[2],
+        transition_list=[
+            (1, 1), (1, 2), (1, 2)
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_next_states_wrong_type_tuple():
+    return StochasticGame(
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
+        final_states=[2],
+        transition_list=[
+            [1, 2, 3], [1, 2], [1, 2]
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_next_states_bigger_tuple():
+    return StochasticGame(
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
+        final_states=[2],
+        transition_list=[
+            [(1, 1, 4)], [(1, 2, 2)], [(1, 2, 3)]
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_next_states_wrong_action():
+    return StochasticGame(
+        players=[PLAYER_2, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
+        final_states=[2],
+        transition_list=[
+            [(1, 1)], [(1, 2)], [(1, 2)]
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_next_states_wrong_prob():
+    return StochasticGame(
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
+        final_states=[2],
+        transition_list=[
+            [("alfa", 1)], [(1, 2)], [(1, 2)]
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_next_states_wrong_state_type():
+    return StochasticGame(
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
+        final_states=[2],
+        transition_list=[
+            [(1, "1")], [(1, 2)], [(1, 2)]
+            ],
+    )
+
+
+@pytest.fixture
+def stochastic_game_next_states_wrong_state_idx():
+    return StochasticGame(
+        players=[PROBABILISTIC, PROBABILISTIC, PROBABILISTIC],
+        rewards=[0, 0, 0],
+        final_states=[2],
+        transition_list=[
+            [(1, 10)], [(1, 2)], [(1, 2)]
             ],
     )
