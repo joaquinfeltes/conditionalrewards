@@ -11,15 +11,16 @@ from example_games import GAMES
 
 def main():
     for name, game in GAMES.items():
-        print("=========================================")
+        print("="*160)
+        print()
         print(f"Running example: {name}")
         sgame = StochasticGame(**game)
         final_strategies, reachability_strategies = sgame.solve()
         print()
         print(f"Reachability strategies: {reachability_strategies}")
-        print(f"Final strategies: {final_strategies}")
-        print("=========================================")
+        print(f"Final strategies       : {final_strategies}")
+        print()
 
-
+ 
 if __name__ == "__main__":
     main()
