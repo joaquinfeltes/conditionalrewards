@@ -56,13 +56,22 @@ class StochasticGame:
         return state_list
 
     def solve(self):
+        print("Initializing stochastic game ...")
         state_list = self.init_states()
         solver = Solver(threshold=0.01, state_list=state_list)
+
+        print("Solving reachability ...")
         reachability_strategies = solver.solve_reachability(
             self.transition_list, self.final_states)
+
+        print("Keeping states with biggest probability to reach the objective ...")
         solver.prune_states(reachability_strategies)
+
+        print("Solving total rewards ...")
         final_strategies = solver.solve_total_rewards()
-        return final_strategies
+
+        print("Done!")
+        return final_strategies, reachability_strategies
 
 
 class Node:
@@ -93,6 +102,8 @@ class Node:
         )
 
 
+# TODO test that next states is a list contaning tuples,
+# and each tuple has a probability and a state (is lower thatn num states)
 class ProbabilisticNode(Node):
     def __init__(self, player, idx, reward, next_states, is_final_node):
         super().__init__(player, idx, reward, next_states, is_final_node)
@@ -257,17 +268,26 @@ class Solver:
 
     def value_iteration_total_rewards(self):
         diff = 1
+        print("Value iteration total rewards")
+        i = 0
         while diff > self.threshold:
+            print("+++++++++++++++++++++++++++++++++++++++++")
+            print(f"iteration {i}")
+            i += 1
             for state in self.state_list:
-                state.expected_rewards_next = state.value_iteration_rewards(self.state_list)
-                state.expected_rewards_next = state.value_iteration_rewards(self.state_list)
                 state.expected_rewards_next = state.value_iteration_rewards(self.state_list)
 
             diff = max([
                 abs(state.expected_rewards_next - state.expected_rewards)
                 for state in self.state_list])
             for state in self.state_list:
+                print(state.idx, state.expected_rewards)
                 state.expected_rewards = state.expected_rewards_next
+
+        print("+++++++++++++++++++++++++++++++++++++++++")
+        print(f"iteration {i}")
+        for state in self.state_list:
+            print(state.idx, state.expected_rewards)
 
     def _get_total_rewards_strategies(self):
         """This function returns a list of strategies that maximize total rewards"""

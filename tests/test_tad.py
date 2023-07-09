@@ -45,15 +45,19 @@ def test_sg_init_incomplete_transition_list(stochastic_game_incomplete_transitio
 
 
 def test_sg_solve(stochastic_game_game_5_5):
-    final_strategies = stochastic_game_game_5_5.solve()
+    final_strategies, reachability_strategies = stochastic_game_game_5_5.solve()
     expected_final_strategies = [["beta"], None, None, None, None, None, None, None]
+    expected_reachability_strategies = [["beta"], None, None, None, None, None, None, None]
     assert final_strategies == expected_final_strategies
+    assert reachability_strategies == expected_reachability_strategies
 
 
 def test_sg_solve_same_reach(stochastic_game_game_5_5_same_reach):
-    final_strategies = stochastic_game_game_5_5_same_reach.solve()
+    final_strategies, reachability_strategies = stochastic_game_game_5_5_same_reach.solve()
     expected_final_strategies = [["alfa"], None, None, None, None, None, None, None]
+    expected_reachability_strategies = [['alfa', 'beta'], None, None, None, None, None, None, None]
     assert final_strategies == expected_final_strategies
+    assert reachability_strategies == expected_reachability_strategies
 
 
 # ----------------------------------------ProbabilisticNode----------------------------------------#
