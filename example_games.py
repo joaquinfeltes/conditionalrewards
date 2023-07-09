@@ -74,6 +74,27 @@ GAMES = {
         ],
         "final_states": [9, 11]
     },
+    "game_5_7": {
+        "rewards": [
+            0,
+            0, 0,
+            10**25, 0, 1,
+            0
+            ],
+        "players": [
+            "Player 1",
+            "Probabilistic", "Probabilistic",
+            "Probabilistic", "Probabilistic", "Probabilistic",
+            "Probabilistic",
+        ],
+        "transition_list": [
+            [("alfa", 1), ("beta", 2)],
+            [(0.01, 3), (0.99, 4)], [(0.01, 4), (0.99, 5)],
+            [(1, 6)], [(1, 4)], [(1, 6)],
+            [(1, 6)]
+        ],
+        "final_states": [6]
+    },
     # "game_5_6_all_player_one": {
     #     "rewards": [
     #         0,
