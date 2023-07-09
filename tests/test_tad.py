@@ -334,7 +334,6 @@ def test_prune_states(state_list_game_5_5):
 def test_solve_total_rewards(
         state_list_game_5_5, transition_list_game_5_5, reachability_strategies_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
-    # might need to prune before
     test_get_total_rewards_strategies = Solver(state_list_game_5_5).solve_total_rewards()
     expected_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
     assert test_get_total_rewards_strategies == expected_total_rewards_strategies
