@@ -20,6 +20,11 @@ class StochasticGame:
         self.num_states = len(self.players)
 
     def init_states(self):
+        # TODO check that rewards only contains positives
+        # TODO check that final states are in the range of the number of states
+        # TODO check that transition list is a list of lists and every list has tuples,
+        # where the second element is a number in the range of the number of states 
+        # (this can be done in the node class)
         if len(self.transition_list) != self.num_states:
             raise ValueError(
                 "The transition list must have the same number of elements as states in the game.")
@@ -55,6 +60,12 @@ class StochasticGame:
             raise ValueError("Missing transitions")
         return state_list
 
+    def only_one_strategy(self, strategies):
+        for strategy in strategies:
+            if strategy and len(strategy) > 1:
+                return False
+        return True
+
     def solve(self):
         print("Initializing stochastic game ...")
         state_list = self.init_states()
@@ -63,8 +74,14 @@ class StochasticGame:
         print("Solving reachability ...")
         reachability_strategies = solver.solve_reachability(
             self.transition_list, self.final_states)
+        print(f"Reachability strategies: {reachability_strategies}")
 
-        print("Keeping states with biggest probability to reach the objective ...")
+        if self.only_one_strategy(reachability_strategies):
+            print("Only one strategy left per node, no need to calculate total rewards.")
+            print("Done!")
+            return reachability_strategies, reachability_strategies
+
+        print("Only keeping states with biggest probability to reach the objective ...")
         solver.prune_states(reachability_strategies)
 
         print("Solving total rewards ...")
@@ -103,7 +120,7 @@ class Node:
 
 
 # TODO test that next states is a list contaning tuples,
-# and each tuple has a probability and a state (is lower thatn num states)
+# and each tuple has a probability and a state (that is lower than num states)
 class ProbabilisticNode(Node):
     def __init__(self, player, idx, reward, next_states, is_final_node):
         super().__init__(player, idx, reward, next_states, is_final_node)
@@ -223,19 +240,27 @@ class Solver:
 
     def value_iteration_reachability(self, reachable_states):
         diff = 1
+        print("Value iteration for reachability:")
+        print("-"*80)
+        i = 0
         while diff > self.threshold:
+            print(f"iteration {i}")
+            i += 1
             for state_idx in reachable_states:
                 state = self.state_list[state_idx]
                 state.reach_probability_next = state.value_iteration_reach(self.state_list)
-                state.reach_probability_next = state.value_iteration_reach(self.state_list)
-                state.reach_probability_next = state.value_iteration_reach(self.state_list)
-
             diff = max(
                 [abs(self.state_list[state_idx].reach_probability_next -
                  self.state_list[state_idx].reach_probability) for state_idx in reachable_states])
             for state_idx in reachable_states:
                 state = self.state_list[state_idx]
+                print(state.idx, state.reach_probability)
                 state.reach_probability = state.reach_probability_next
+            print("-"*80)
+        print(f"iteration {i}")
+        for state in self.state_list:
+            print(state.idx, state.reach_probability)
+        print("-"*80)
 
     def _get_reachability_strategies(self):
         """This function returns a list of strategies that maximize
@@ -268,10 +293,10 @@ class Solver:
 
     def value_iteration_total_rewards(self):
         diff = 1
-        print("Value iteration total rewards")
+        print("Value iteration for total rewards:")
+        print("-"*80)
         i = 0
         while diff > self.threshold:
-            print("+++++++++++++++++++++++++++++++++++++++++")
             print(f"iteration {i}")
             i += 1
             for state in self.state_list:
@@ -283,11 +308,12 @@ class Solver:
             for state in self.state_list:
                 print(state.idx, state.expected_rewards)
                 state.expected_rewards = state.expected_rewards_next
+            print("-"*80)
 
-        print("+++++++++++++++++++++++++++++++++++++++++")
         print(f"iteration {i}")
         for state in self.state_list:
             print(state.idx, state.expected_rewards)
+        print("-"*80)
 
     def _get_total_rewards_strategies(self):
         """This function returns a list of strategies that maximize total rewards"""
