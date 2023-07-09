@@ -19,5 +19,7 @@ def main():
         print(f"Reachability strategies: {reachability_strategies}")
         print(f"Final strategies: {final_strategies}")
         print("=========================================")
+
+
 if __name__ == "__main__":
     main()
