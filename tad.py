@@ -33,7 +33,7 @@ class StochasticGame:
 
         if max(self.final_states) >= self.num_states or min(self.final_states) < 0:
             raise ValueError("Final states must be in the range of the number of states.")
-        
+
         for player in self.players:
             if player not in [PLAYER_1, PLAYER_2, PROBABILISTIC]:
                 raise ValueError(f"Player must be {PLAYER_1}, {PLAYER_2} or {PROBABILISTIC}.")
