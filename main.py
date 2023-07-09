@@ -1,2 +1,23 @@
-# crear un juego estocastico y llamar al StochasticGame.
-# desues llamar al solver para que resuelva el juego y devuelva el resultado
+from tad import StochasticGame
+# import json
+from example_games import GAMES
+
+# NO se si es lo mejor usar JSON, no es bueno para las tuplas ni para las fracciones
+# TODO hacer algo como time para ver cuanto tarda en resolver el juego
+# TODO hacer un archivo de configuracion para los juegos
+# TODO mandar resultados a un archivo de texto
+# TODO [MUST] devolver ademas de las estrategias, probabilidades
+
+
+def main():
+    for name, game in GAMES.items():
+        print("=========================================")
+        print(f"Running example: {name}")
+        sgame = StochasticGame(**game)
+        final_strategies, reachability_strategies = sgame.solve()
+        print()
+        print(f"Reachability strategies: {reachability_strategies}")
+        print(f"Final strategies: {final_strategies}")
+        print("=========================================")
+if __name__ == "__main__":
+    main()
