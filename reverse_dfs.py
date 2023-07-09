@@ -10,6 +10,7 @@ def reverse_dfs(transition_list: list, final_states: list) -> list:
 
     # remove final_states from reachable_states
     reachable_states = [state for state in reachable_states if state not in final_states]
+    reachable_states.sort()
     return reachable_states
 
 
