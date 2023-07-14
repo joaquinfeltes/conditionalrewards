@@ -150,6 +150,16 @@ def test_value_iteration_rewards(node_0, state_list_simple):
     # iteracion o si se multiplica por la probabilidad de llegar al final
 
 
+def test_remove_path(node_0_prob, state_list_all_prob):
+    first_neighboor = node_0_prob.next_states[0]
+    second_neighboor = node_0_prob.next_states[1]
+    third_neighboor = node_0_prob.next_states[2]
+    node_0_prob.remove_path(first_neighboor)
+    new_total = second_neighboor[0] + third_neighboor[0]
+    expected_second_neighboor = (second_neighboor[0]/new_total, second_neighboor[1])
+    expected_third_neighboor = (third_neighboor[0]/new_total, third_neighboor[1])
+    assert node_0_prob.next_states == [expected_second_neighboor, expected_third_neighboor]
+
 # ----------------------------------------PlayerOne----------------------------------------#
 
 

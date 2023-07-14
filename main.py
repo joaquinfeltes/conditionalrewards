@@ -27,7 +27,7 @@ def main():
         print(f"Reachability strategies: {reachability_strategies}")
         print(f"Final strategies       : {final_strategies}")
         print(f"Total time             : {total_time}")
-        save_results_to_file(name, reachability_strategies, final_strategies, total_time)
+        # save_results_to_file(name, reachability_strategies, final_strategies, total_time)
 
 
 if __name__ == "__main__":

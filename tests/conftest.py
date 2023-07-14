@@ -88,6 +88,77 @@ def state_list_no_final(node_0, node_1, node_2):
 
 
 # ----------------------------------------------------------------------------#
+# Graph with 4 nodes the first is a probabilistic node
+
+@pytest.fixture
+def node_0_prob():
+    return ProbabilisticNode(
+        player=PROBABILISTIC,
+        idx=0,
+        reward=1,
+        next_states=[
+            (0.5, 1),
+            (0.2, 2),
+            (0.3, 3),
+        ],
+        num_states=4,
+        is_final_node=False,
+    )
+
+
+@pytest.fixture
+def node_1_prob():
+    return ProbabilisticNode(
+        player=PROBABILISTIC,
+        idx=1,
+        reward=2,
+        next_states=[
+            (1, 1),
+        ],
+        num_states=4,
+        is_final_node=False,
+    )
+
+
+@pytest.fixture
+def node_2_prob():
+    return ProbabilisticNode(
+        player=PROBABILISTIC,
+        idx=2,
+        reward=2,
+        next_states=[
+            (1, 2),
+        ],
+        num_states=4,
+        is_final_node=True,
+    )
+
+
+@pytest.fixture
+def node_3_prob():
+    return ProbabilisticNode(
+        player=PROBABILISTIC,
+        idx=3,
+        reward=3,
+        next_states=[
+            (1, 3),
+        ],
+        num_states=4,
+        is_final_node=False,
+    )
+
+
+@pytest.fixture
+def state_list_all_prob(node_0_prob, node_1_prob, node_2_prob, node_3_prob):
+    # init the reach_probabily field of the node 1, as it is a final node
+    state_list = [node_0_prob, node_1_prob, node_2_prob, node_3_prob]
+    for node in state_list:
+        if node.is_final_node:
+            node.reach_probability = 1
+    return state_list
+
+
+# ----------------------------------------------------------------------------#
 # Graph with 3 nodes the first is a player_1 node
 # and the other two are probabilistic, where the last one is final
 
