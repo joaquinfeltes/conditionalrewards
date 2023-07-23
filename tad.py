@@ -1,4 +1,5 @@
 from reverse_dfs import reverse_dfs
+import logging
 
 PLAYER_1 = "Player 1"
 PLAYER_2 = "Player 2"
@@ -74,35 +75,35 @@ class StochasticGame:
         return True
 
     def solve(self):
-        print("Initializing stochastic game ...")
+        logging.info("Initializing stochastic game ...")
         self.check_game()
         state_list = self.init_states()
         solver = Solver(threshold=10**(-6), state_list=state_list)
 
-        print("Solving reachability ...")
+        logging.info("Solving reachability ...")
         reachability_strategies = solver.solve_reachability(
             self.transition_list, self.final_states)
-        print(f"Reachability strategies: {reachability_strategies}")
+        logging.debug(f"Reachability strategies: {reachability_strategies}")
 
         # Not sure if we want to do this taking U into account
         if self.only_one_strategy(reachability_strategies):
-            print("Only one strategy left per node, no need to calculate total rewards.")
-            print("Done!")
+            logging.info("Only one strategy left per node, no need to calculate total rewards.")
+            logging.info("Done!")
             return reachability_strategies, reachability_strategies
 
         # This will leave us with a new state list,
         # where the states that are not reachable from the final states are removed
         # and the probability is distributed among the remaining states
-        print("Only keeping states with biggest probability to reach the objective ...")
+        logging.info("Only keeping states with biggest probability to reach the objective ...")
         solver.prune_states(reachability_strategies)
 
         # This will calculate the upper bound and the initial value for the total rewards
         solver.calculate_upper_bound()
 
-        print("Solving total rewards ...")
+        logging.info("Solving total rewards ...")
         final_strategies = solver.solve_total_rewards()
 
-        print("Done!")
+        logging.info("Done!")
         return final_strategies, reachability_strategies
 
 
@@ -120,7 +121,7 @@ class Node:
         self.is_final_node = is_final_node
         self.reach_probability = 1 if is_final_node else 0
         self.reach_probability_next = 0
-        self.expected_rewards = None
+        self.expected_rewards = reward  # TODO: ver que valor queremos
         self.expected_rewards_next = 0
         self.num_states = num_states
         self.check_next_states()
@@ -286,11 +287,11 @@ class Solver:
 
     def value_iteration_reachability(self, reachable_states):
         diff = 1
-        print("Value iteration for reachability:")
-        print("-"*80)
+        logging.debug("Value iteration for reachability:")
+        logging.debug("-"*80)
         i = 0
         while diff > self.threshold:
-            print(f"iteration {i}")
+            logging.debug(f"iteration {i}")
             i += 1
             for state_idx in reachable_states:
                 state = self.state_list[state_idx]
@@ -300,13 +301,13 @@ class Solver:
                  self.state_list[state_idx].reach_probability) for state_idx in reachable_states])
             for state_idx in reachable_states:
                 state = self.state_list[state_idx]
-                print(state.idx, state.reach_probability)
+                logging.debug(f"{state.idx} {state.reach_probability}")
                 state.reach_probability = state.reach_probability_next
-            print("-"*80)
-        print(f"iteration {i}")
+            logging.debug("-"*80)
+        logging.debug(f"iteration {i}")
         for state in self.state_list:
-            print(state.idx, state.reach_probability)
-        print("-"*80)
+            logging.debug(f"{state.idx} {state.reach_probability}")
+        logging.debug("-"*80)
 
     def _get_reachability_strategies(self):
         """This function returns a list of strategies that maximize
@@ -324,11 +325,11 @@ class Solver:
             if state.player == PLAYER_1:
                 state.prune_state(reachability_strategies[idx])
             # borrar los caminos a nodos con reach 0
-            if state.player == PROBABILISTIC:
-                for _next_state in state.next_states:
-                    next_state = self.state_list[_next_state[NEXT_STATE_IDX]]
-                    if next_state.reach_probability == 0:
-                        state.remove_path(_next_state)
+            # if state.player == PROBABILISTIC:
+            #     for _next_state in state.next_states:
+            #         next_state = self.state_list[_next_state[NEXT_STATE_IDX]]
+            #         if next_state.reach_probability == 0:
+            #             state.remove_path(_next_state)
         # ademas de cortar estos caminos,
         # hay que borrar los caminos a los nodos que tienen alcanzabilidad 0.
         # y hay que distribuir la probabilidad de los nodos que se eliminaron.
@@ -352,11 +353,11 @@ class Solver:
 
     def value_iteration_total_rewards(self):
         diff = 1
-        print("Value iteration for total rewards:")
-        print("-"*80)
+        logging.debug("Value iteration for total rewards:")
+        logging.debug("-"*80)
         i = 0
         while diff > self.threshold:
-            print(f"iteration {i}")
+            logging.debug(f"iteration {i}")
             i += 1
             for state in self.state_list:
                 # tener en cuenta el U como maximo en el value iteration
@@ -366,14 +367,14 @@ class Solver:
                 abs(state.expected_rewards_next - state.expected_rewards)
                 for state in self.state_list])
             for state in self.state_list:
-                print(state.idx, state.expected_rewards)
+                logging.debug(f"{state.idx} {state.expected_rewards}")
                 state.expected_rewards = state.expected_rewards_next
-            print("-"*80)
+            logging.debug("-"*80)
 
-        print(f"iteration {i}")
+        logging.debug(f"iteration {i}")
         for state in self.state_list:
-            print(state.idx, state.expected_rewards)
-        print("-"*80)
+            logging.debug(f"{state.idx} {state.expected_rewards}")
+        logging.debug("-"*80)
 
     def _get_total_rewards_strategies(self):
         """This function returns a list of strategies that maximize total rewards"""
