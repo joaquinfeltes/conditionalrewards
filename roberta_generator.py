@@ -97,7 +97,7 @@ def player_one_left_right_transitions(length, width, n_tiles, moves):
     return transition_list
 
 
-def prob_tile_break_transitions(length, width, n_tiles, prob_break, loose_tiles):
+def prob_tile_break_transitions(length, width, n_tiles, prob_tile_break, loose_tiles):
     # Probabilistic transitions (if the tile is loose,
     # there is a probability of break_prob of going to the bad state)
     # and there is a probability of 1 - break_prob of going to the proper tile,
@@ -107,18 +107,16 @@ def prob_tile_break_transitions(length, width, n_tiles, prob_break, loose_tiles)
         for j in range(width):
             transition = []
             if loose_tiles[i][j] == 1:
-                transition.append((prob_break, n_tiles * 4))
-                transition.append((1 - prob_break, i * width + j))
+                transition.append((prob_tile_break, n_tiles * 4))
+                transition.append((1 - prob_tile_break, i * width + j))
             else:
                 transition.append((1, i * width + j))
             transition_list.append(transition)
     return transition_list
 
 
-def write_preamble(file_name, length, width, moves, rewards, loose_tiles):
+def write_preamble(my_file, length, width, moves, rewards, loose_tiles):
     # a depiction of the board as a comment
-    # it will clean the file if it exists
-    my_file = open(file_name, "w")
     my_file.write("# Board:\n#")
     for i in range(length):
         my_file.write("\n#  ")
@@ -126,12 +124,10 @@ def write_preamble(file_name, length, width, moves, rewards, loose_tiles):
             my_file.write(" [" + str(int(rewards[i][j])) + "|" + MOVE_SINTAX[moves[i][j]] +
                           TILE_SYNTAX[loose_tiles[i][j]] + "]")
     my_file.write("\n\n")
-    my_file.close()
 
 
-def write_robot_A(file_name, length, width, moves, rewards, loose_tiles, prob_tile_break):
+def write_robot_A(my_file, length, width, moves, rewards, loose_tiles, prob_tile_break):
     n_tiles = length * width
-    my_file = open(file_name, "a")
 
     my_rewards = [reward for sublist in rewards for reward in sublist] + \
                  [0] * n_tiles * 3 + \
@@ -168,6 +164,29 @@ def write_robot_A(file_name, length, width, moves, rewards, loose_tiles, prob_ti
                   )
     my_file.write(",\n")
     my_file.write("}\n")  # TODO this should be added only when is the last game
+
+
+def write_robot_B(my_file, length, width, moves, rewards, loose_tiles, prob_tile_break,
+                  prob_robot_break):
+    pass
+
+
+def write_robot_C(my_file, length, width, moves, rewards, loose_tiles, prob_tile_break,
+                  prob_robot_break, prob_light_break):
+    pass
+
+
+def write_robots(file_name, length, width, moves, rewards, loose_tiles, prob_tile_break,
+                 prob_robot_break, prob_light_break):
+
+    my_file = open(file_name, "w")
+
+    write_preamble(my_file, length, width, moves, rewards, loose_tiles)
+    write_robot_A(my_file, length, width, moves, rewards, loose_tiles, prob_tile_break)
+    write_robot_B(my_file, length, width, moves, rewards, loose_tiles, prob_tile_break,
+                  prob_robot_break)
+    write_robot_C(my_file, length, width, moves, rewards, loose_tiles, prob_tile_break,
+                  prob_robot_break, prob_light_break)
     my_file.close()
 
 
@@ -197,15 +216,18 @@ def usage(exit_val):
 
 def main(argv):
 
+    def prob_to_str(prob):
+        return str(int(prob*100))
+
     seed = 0
     width = 5
     length = 10
-    prob_robot = 0.1  # No lo uso
-    prob_light = 0.05  # No lo uso
+    prob_robot_break = 0.1
+    prob_light_break = 0.05
     include_rewards = True
 
     prob_loose_tile = 0.30
-    prob_break = 0.1
+    prob_tile_break = 0.1
     max_reward = 6
 
     # TODO use argparse instead of getopt
@@ -246,20 +268,20 @@ def main(argv):
                 sys.exit(2)
         elif opt in ("-p", "prob_fail_robot="):
             try:
-                prob_robot = float(arg)
+                prob_robot_break = float(arg)
             except ValueError:
                 print("The failure probability of the robot must be a float in (0,1)")
                 sys.exit(2)
-            if prob_robot <= 0 or prob_robot >= 1:
+            if prob_robot_break <= 0 or prob_robot_break >= 1:
                 print("The failure probability of the robot must be a float in (0,1)")
                 sys.exit(2)
         elif opt in ("-q", "prob_fail_light="):
             try:
-                prob_light = float(arg)
+                prob_light_break = float(arg)
             except ValueError:
                 print("The failure probability of the light must be a float in (0,1)")
                 sys.exit(2)
-            if prob_light <= 0 or prob_light >= 1:
+            if prob_light_break <= 0 or prob_light_break >= 1:
                 print("The failure probability of the light must be a float in (0,1)")
                 sys.exit(2)
         elif opt == "-r":
@@ -267,13 +289,13 @@ def main(argv):
 
     moves, rewards, loose_tiles = gen_rnd_board(seed, length, width, prob_loose_tile, max_reward)
 
-    file_name = (
-                "inputs/robot_" + str(seed) + "_" + str(width) + "_" + str(length)+"_" +
-                str(100*prob_robot)+"_"+str(100*prob_light)+"_"+str(100*prob_loose_tile) +
-                ("" if include_rewards else "_NR")+".py"
-                )
-    write_preamble(file_name, length, width, moves, rewards, loose_tiles)
-    write_robot_A(file_name, length, width, moves, rewards, loose_tiles, prob_break)
+    file_name = "inputs/robot_" + str(seed) + "_" + str(width) + "_" + str(length)+"_" + \
+                prob_to_str(prob_robot_break) + "_" + prob_to_str(prob_light_break) + "_" + \
+                prob_to_str(prob_loose_tile) + ("" if include_rewards else "_NR") + ".py"
+
+    write_robots(file_name, length, width, moves, rewards, loose_tiles, prob_tile_break,
+                 prob_robot_break, prob_light_break)
 
 
-main(sys.argv[1:])
+if __name__ == "__main__":
+    main(sys.argv[1:])
