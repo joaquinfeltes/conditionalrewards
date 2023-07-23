@@ -15,6 +15,7 @@ def save_results_to_file(game_resuts, file_name):
             file.write(f"\nRunning example         : {name}\n")
             file.write(f"Reachability strategies : {reachability_strategies}\n")
             file.write(f"Final strategies        : {final_strategies}\n")
+            file.write(f"Are equal               : {reachability_strategies == final_strategies}\n")
             file.write(f"Total time              : {total_time}\n")
 
 
