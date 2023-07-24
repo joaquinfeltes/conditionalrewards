@@ -15,7 +15,7 @@ TWELVE_SPACES = EIGHT_SPACES + FOUR_SPACES
 SIXTEEN_SPACES = TWELVE_SPACES + FOUR_SPACES
 
 
-def gen_rnd_board(seed, length, width, prob_loose_tile, max_reward=6, include_rewards=True):
+def gen_rnd_board(seed, length, width, prob_loose_tile, max_reward=6):
     moves = []
     rewards = []
     loose_tiles = []
@@ -27,8 +27,7 @@ def gen_rnd_board(seed, length, width, prob_loose_tile, max_reward=6, include_re
         rewards.append([])
         loose_tiles.append([])
         for j in range(width):
-            moves[i].append(
-                1 if include_rewards else random.randrange(0, 3))  # TODO back to just random
+            moves[i].append(random.randrange(0, 3))
             rewards[i].append(math.floor(
                 -math.log(
                     1.0/2.0**(max_reward+1) +
@@ -137,6 +136,7 @@ def write_robot_A(my_file, length, width, moves, rewards, loose_tiles, prob_tile
     total = 4
 
     n_prob_groups = 1
+    n_robot_groups = 2
 
     n_tiles = length * width
     loosing_state = n_tiles * total
@@ -147,7 +147,7 @@ def write_robot_A(my_file, length, width, moves, rewards, loose_tiles, prob_tile
                  [0, 0]
 
     my_players = ["Player 2" for i in range(n_tiles)] + \
-                 ["Player 1" for i in range(n_tiles*2)] + \
+                 ["Player 1" for i in range(n_tiles*n_robot_groups)] + \
                  ["Probabilistic" for i in range(n_tiles*n_prob_groups)] + \
                  ["Probabilistic", "Probabilistic"]  # The bad and the good states
 
@@ -175,7 +175,7 @@ def write_robot_A(my_file, length, width, moves, rewards, loose_tiles, prob_tile
         "transition_list": transition_list,
         "final_states": my_final_states
     }
-    my_file.write("{'game_a': ")
+    my_file.write("{\n 'game_a': ")
 
     my_file.write(str(game)
                   .replace("[[", "[\n[")
@@ -254,6 +254,7 @@ def write_robot_B(my_file, length, width, moves, rewards, loose_tiles, prob_tile
 
     total = 7
     n_prob_groups = 4
+    n_robot_groups = 2
 
     n_tiles = length * width
     loosing_state = n_tiles * total
@@ -264,7 +265,7 @@ def write_robot_B(my_file, length, width, moves, rewards, loose_tiles, prob_tile
                  [0, 0]
 
     my_players = ["Player 2" for i in range(n_tiles)] + \
-                 ["Player 1" for i in range(n_tiles*2)] + \
+                 ["Player 1" for i in range(n_tiles*n_robot_groups)] + \
                  ["Probabilistic" for i in range(n_tiles*n_prob_groups)] + \
                  ["Probabilistic", "Probabilistic"]  # The bad and the good states
 
@@ -318,13 +319,146 @@ def write_robot_B(my_file, length, width, moves, rewards, loose_tiles, prob_tile
                   .replace("\n'", "\n" + TWELVE_SPACES + "'")
                   )
     my_file.write(",\n")
-    my_file.write("}\n")  # TODO this should be added only when is the last game
+
+
+def player_one_down_left_right_transitions(length, width, moves, offset_d, offset_l, offset_r):
+    """
+    Player 1 transitions for when the light breaks
+    the robot might break too, so the transitions go
+    to the corresponding prob state
+    """
+    transition_list = []
+    for i in range(length):
+        for j in range(width):
+            transition = []
+            transition.append(("Down", offset_d + i * width + j))
+            transition.append(("Left",  offset_l + i * width + j))
+            transition.append(("Right", offset_r + i * width + j))
+
+            if moves[i][j] == 0:
+                # without right
+                transition_list.append([transition[0], transition[1]])
+            elif moves[i][j] == 1:
+                # all
+                transition_list.append(transition)
+            elif moves[i][j] == 2:
+                # without left
+                transition_list.append([transition[0], transition[2]])
+    return transition_list
+
+
+def prob_light_break_transitions(length, width, prob_light_break, offset_ok, offset_break):
+    transition_list = []
+    for i in range(length):
+        for j in range(width):
+            transition = []
+            transition.append((prob_light_break, offset_break + i * width + j))
+            transition.append((1 - prob_light_break, offset_ok + i * width + j))
+            transition_list.append(transition)
+    return transition_list
 
 
 def write_robot_C(my_file, length, width, moves, rewards, loose_tiles, prob_tile_break,
                   prob_robot_break, prob_light_break):
-    # TODO
-    pass
+    """
+    The robot might break with probability prob_robot_break
+    the light might break with probability prob_light_break
+    """
+
+    # offsets for type of game B
+    light = 0
+    robot_down = 1
+    robot_left_right = 2
+    robot_down_left_right = 3
+    tile_break = 4
+    robot_down_break = 5
+    robot_left_break = 6
+    robot_right_break = 7
+    light_red_break = 8
+    light_yellow_break = 9
+
+    total = 10
+    n_prob_groups = 6
+    n_robot_groups = 3
+
+    n_tiles = length * width
+    loosing_state = n_tiles * total
+    winning_state = n_tiles * total + 1
+
+    my_rewards = [reward for sublist in rewards for reward in sublist] + \
+                 [0] * n_tiles * (total-1) + \
+                 [0, 0]
+
+    my_players = ["Player 2" for i in range(n_tiles)] + \
+                 ["Player 1" for i in range(n_tiles*n_robot_groups)] + \
+                 ["Probabilistic" for i in range(n_tiles*n_prob_groups)] + \
+                 ["Probabilistic", "Probabilistic"]  # The bad and the good states
+
+    my_final_states = [winning_state]
+
+    # 0 light
+    transition_list = player_two_transitions(
+        length, width, offset_r=(light_red_break*n_tiles), offset_y=(light_yellow_break*n_tiles))
+
+    # 1 robot down
+    transition_list += player_one_down_transitions(
+        length, width, offset=(robot_down_break*n_tiles))
+
+    # 2 robot left right
+    transition_list += player_one_left_right_transitions(
+        length, width, moves, offset_l=(robot_left_break*n_tiles),
+        offset_r=(robot_right_break*n_tiles))
+
+    # 3 robot down left right
+    transition_list += player_one_down_left_right_transitions(
+        length, width, moves, offset_d=(robot_down_break*n_tiles),
+        offset_l=(robot_left_break*n_tiles), offset_r=(robot_right_break*n_tiles))
+
+    # 4 tile break
+    transition_list += prob_tile_break_transitions(
+        length, width, prob_tile_break, loose_tiles, offset=light, loosing_state=(loosing_state))
+
+    # 5 robot down break
+    transition_list += prob_robot_down_break_transitions(
+        length, width, prob_robot_break, offset=(tile_break*n_tiles), winning_state=winning_state)
+
+    # 6 robot left break
+    transition_list += prob_robot_left_break_transitions(
+        length, width, prob_robot_break, offset=(tile_break*n_tiles))
+
+    # 7 robot right break
+    transition_list += prob_robot_right_break_transitions(
+        length, width, prob_robot_break, offset=(tile_break*n_tiles))
+
+    # 8 light red break
+    transition_list += prob_light_break_transitions(
+        length, width, prob_light_break, offset_ok=(robot_down*n_tiles),
+        offset_break=(robot_down_left_right*n_tiles))
+
+    # 9 light yellow break
+    transition_list += prob_light_break_transitions(
+        length, width, prob_light_break, offset_ok=(robot_left_right*n_tiles),
+        offset_break=(robot_down_left_right*n_tiles))
+
+    # the bad and the good states are loops to themselves
+    transition_list.append([(1, loosing_state)])
+    transition_list.append([(1, winning_state)])
+
+    game = {
+        "rewards": my_rewards,
+        "players": my_players,
+        "transition_list": transition_list,
+        "final_states": my_final_states
+    }
+    my_file.write(" 'game_c': ")
+
+    my_file.write(str(game)
+                  .replace("[[", "[\n[")
+                  .replace("], ", "],\n")
+                  .replace("[(", SIXTEEN_SPACES+"[(")
+                  .replace("\n'", "\n" + TWELVE_SPACES + "'")
+                  )
+    my_file.write("\n}\n")
 
 
 def write_robots(file_name, length, width, moves, rewards, loose_tiles, prob_tile_break,
@@ -438,11 +572,10 @@ def main(argv):
         elif opt == "-r":
             include_rewards = False
 
-    # TODO delete the include rewards from gen rnd board
     moves, rewards, loose_tiles = gen_rnd_board(
-        seed, length, width, prob_loose_tile, max_reward, include_rewards)
+        seed, length, width, prob_loose_tile, max_reward)
 
-    file_name = "inputs/DEBUGrobot_" + str(seed) + "_" + str(width) + "_" + str(length)+"_" + \
+    file_name = "inputs/robot_" + str(seed) + "_" + str(width) + "_" + str(length)+"_" + \
                 prob_to_str(prob_robot_break) + "_" + prob_to_str(prob_light_break) + "_" + \
                 prob_to_str(prob_loose_tile) + ".py"
 
