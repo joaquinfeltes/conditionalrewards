@@ -1,7 +1,4 @@
-#!/usr/bin/python
-
-import sys
-import getopt
+import argparse
 import random
 import math
 
@@ -475,113 +472,108 @@ def write_robots(file_name, length, width, moves, rewards, loose_tiles, prob_til
     my_file.close()
 
 
-def usage(exit_val):
-    print("\nusage robot_gen.py [-h] [-s <int> ] [-w <int>] [-l <int>] [-p <float>] [-q <float>]\n")
-    print("-h :\n")
-    print("  Print this help\n")
-    print("-r :\n")
-    print("  Exclude the rewards setting\n")
-    print("-s num :\n")
-    print("  Sets the seed for the pseudo-random number generator to 'num'. 'num' must be")
-    print("  a non-negative integer (0 or higher) (default = 0)\n")
-    print("-w num :\n")
-    print("  Sets the width of the board to 'num'. 'num' must be a positive integer")
-    print("  (greater than 0) (default = 5)\n")
-    print("-l num :\n")
-    print("  Sets the length of the board to 'num'. 'num' must be a positive integer")
-    print("  (greater than 0) (default = 10)\n")
-    print("-p num :\n")
-    print("  Sets the failure probability of the robot to 'num'. 'num' must be a float")
-    print("  in the interval (0,1) (default = 0.1)\n")
-    print("-q num :\n")
-    print("  Sets the failure probability of the light to 'num'. 'num' must be a float")
-    print("  in the interval (0,1) (default = 0.05)\n")
-    sys.exit(exit_val)
+def init_parser():
+    parser = argparse.ArgumentParser(
+        prog="roberta_generator.py",
+        description=(
+            "Creates an input file that contains a dictionary with 3 games.\n"
+            "One where the robot and the light can NOT break,\n"
+            "one where just the robot might break and\n"
+            "one where the robot and the light might break.\n"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    seed_help = "  Sets the seed for the pseudo-random number generator to SEED. SEED must" + \
+                " be a non-negative integer (0 or higher) (default = 0)\n"
+    width_help = "  Sets the width of the board to WIDTH. WIDTH must be a positive integer" + \
+                 " (greater than 0) (default = 3)\n"
+    length_help = "  Sets the length of the board to LENGTH. LENGTH must be a positive" + \
+                  " integer (greater than 0) (default = 3)\n"
+    prob_robot_help = "  Sets the failure probability of the robot to PROB_ROBOT_BREAK." + \
+                      " PROB_ROBOT_BREAK must be a float" + \
+                      " in the interval (0,1) (default = 0.1)\n"
+    prob_light_help = "  Sets the failure probability of the light to PROB_LIGHT_BREAK." + \
+                      " PROB_LIGHT_BREAK must be a float" + \
+                      " in the interval (0,1) (default = 0.05)\n"
+    prob_loose_tile_help = "  Sets the probability of a tile being loose to PROB_LOOSE_TILE." + \
+                           " PROB_LOOSE_TILE must be a float" + \
+                           " in the interval (0,1) (default = 0.3)\n"
+    prob_tile_break_help = "  Sets the probability of a tile breaking to PROB_TILE_BREAK." + \
+                           " PROB_TILE_BREAK must be a float" + \
+                           " in the interval (0,1) (default = 0.1)\n"
+    max_rewards_help = "  Sets the maximum reward to MAX_REWARD. MAX_REWARD must be a" + \
+                       " positive integer (greater than 0) (default = 6)\n"
+    parser.add_argument('--seed', '-s', type=int, required=False, default=0, help=seed_help)
+    parser.add_argument('--width', '-w', type=int, required=False, default=3, help=width_help)
+    parser.add_argument('--length', '-l', type=int, required=False, default=3, help=length_help)
+    parser.add_argument('--prob_robot_break', '-p', type=float, required=False, default=0.1,
+                        help=prob_robot_help)
+    parser.add_argument('--prob_light_break', '-q', type=float, required=False, default=0.05,
+                        help=prob_light_help)
+    parser.add_argument('--prob_tile_break', '-r', type=float, required=False, default=0.1,
+                        help=prob_tile_break_help)
+    parser.add_argument('--prob_loose_tile', '-t', type=float, required=False, default=0.3,
+                        help=prob_loose_tile_help)
+    parser.add_argument('--max_reward', '-m', type=int, required=False, default=6,
+                        help=max_rewards_help)
+    return parser
 
 
-def main(argv):
+def check_input(seed, width, length, prob_robot_break, prob_light_break, prob_loose_tile,
+                prob_tile_break, max_reward):
+    if seed < 0:
+        raise ValueError("The seed must be a nonnegative integer")
+    if width <= 0:
+        raise ValueError("The width must be a positive integer")
+    if length <= 0:
+        raise ValueError("The length must be a positive integer")
+    if prob_robot_break <= 0 or prob_robot_break >= 1:
+        raise ValueError("The failure probability of the robot must be a float in (0,1)")
+    if prob_light_break <= 0 or prob_light_break >= 1:
+        raise ValueError("The failure probability of the light must be a float in (0,1)")
+    if prob_loose_tile <= 0 or prob_loose_tile >= 1:
+        raise ValueError("The probability of a tile being loose must be a float in (0,1)")
+    if prob_tile_break <= 0 or prob_tile_break >= 1:
+        raise ValueError("The probability of a tile breaking must be a float in (0,1)")
+    if max_reward <= 0:
+        raise ValueError("The maximum reward must be a positive integer")
 
-    def prob_to_str(prob):
-        return str(int(prob*100))
 
-    seed = 0
-    width = 5
-    length = 10
-    prob_robot_break = 0.1
-    prob_light_break = 0.05
-    include_rewards = True
+def prob_to_str(prob):
+    return str(int(prob*100))
 
-    prob_loose_tile = 0.30
-    prob_tile_break = 0.1
-    max_reward = 6
 
-    # TODO use argparse instead of getopt
-    try:
-        opts, _ = getopt.getopt(argv, "hs:w:l:p:q:r", [
-            "seed=", "width=", "length=", "prob_fail_robot", "prob_fail_light"])
-    except getopt.GetoptError:
-        usage(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            usage(0)
-        elif opt in ("-s", "seed="):
-            try:
-                seed = int(arg)
-            except ValueError:
-                print("The seed must be a nonnegative integer")
-                sys.exit(2)
-            if seed < 0:
-                print("The seed must be a nonnegative integer")
-                sys.exit(2)
-        elif opt in ("-w", "width="):
-            try:
-                width = int(arg)
-            except ValueError:
-                print("The width must be a positive integer")
-                sys.exit(2)
-            if width <= 0:
-                print("The width must be a positive integer")
-                sys.exit(2)
-        elif opt in ("-l", "length="):
-            try:
-                length = int(arg)
-            except ValueError:
-                print("The length must be a positive integer")
-                sys.exit(2)
-            if length <= 0:
-                print("The length must be a positive integer")
-                sys.exit(2)
-        elif opt in ("-p", "prob_fail_robot="):
-            try:
-                prob_robot_break = float(arg)
-            except ValueError:
-                print("The failure probability of the robot must be a float in (0,1)")
-                sys.exit(2)
-            if prob_robot_break <= 0 or prob_robot_break >= 1:
-                print("The failure probability of the robot must be a float in (0,1)")
-                sys.exit(2)
-        elif opt in ("-q", "prob_fail_light="):
-            try:
-                prob_light_break = float(arg)
-            except ValueError:
-                print("The failure probability of the light must be a float in (0,1)")
-                sys.exit(2)
-            if prob_light_break <= 0 or prob_light_break >= 1:
-                print("The failure probability of the light must be a float in (0,1)")
-                sys.exit(2)
-        elif opt == "-r":
-            include_rewards = False
+def main():
+    parser = init_parser()
+    parsed_args = parser.parse_args()
+
+    seed = parsed_args.seed
+    width = parsed_args.width
+    length = parsed_args.length
+    max_reward = parsed_args.max_reward
+    prob_loose_tile = parsed_args.prob_loose_tile
+    prob_tile_break = parsed_args.prob_tile_break
+    prob_robot_break = parsed_args.prob_robot_break
+    prob_light_break = parsed_args.prob_light_break
+
+    check_input(seed, width, length, prob_robot_break, prob_light_break, prob_loose_tile,
+                prob_tile_break, max_reward)
 
     moves, rewards, loose_tiles = gen_rnd_board(
         seed, length, width, prob_loose_tile, max_reward)
 
-    file_name = "inputs/robot_" + str(seed) + "_" + str(width) + "_" + str(length)+"_" + \
-                prob_to_str(prob_robot_break) + "_" + prob_to_str(prob_light_break) + "_" + \
-                prob_to_str(prob_loose_tile) + ".py"
+    file_name = "inputs/robot_" + str(seed) + "_" + \
+                "w" + str(width) + "_" + \
+                "l" + str(length) + "_" + \
+                "r" + str(max_reward) + "_" + \
+                "rb" + prob_to_str(prob_robot_break) + "_" + \
+                "lb" + prob_to_str(prob_light_break) + "_" + \
+                "tb" + prob_to_str(prob_tile_break) + "_" +  \
+                "lt" + prob_to_str(prob_loose_tile) + ".py"
 
     write_robots(file_name, length, width, moves, rewards, loose_tiles, prob_tile_break,
                  prob_robot_break, prob_light_break)
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()

@@ -65,16 +65,19 @@ def set_logger(level=logging.INFO):
 
 def init_parser():
     parser = argparse.ArgumentParser(
-        prog="Run the stochastic games solver",
+        prog="main.py",
         description=(
             "Run the solver for the stochastic games of an input file.\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
+
+    logger_help = "Logger level. Choose between INFO (i), DEBUG (d) and FULL_DEBUG (dd)."
+    save_help = "Save results to a file with the same name as the input file in the outputs folder."
     parser.add_argument('--file', '-f', type=str, required=True, help="Input file.")
     parser.add_argument('--log_level', '-l', type=str,
-                        required=False, default=None, help="logger level.")
-    parser.add_argument('--save_results', '-s', action="store_true", help="Save results to file.")
+                        required=False, default=None, help=logger_help)
+    parser.add_argument('--save_results', '-s', action="store_true", help=save_help)
     return parser
 
 
