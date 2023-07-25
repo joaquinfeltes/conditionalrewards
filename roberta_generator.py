@@ -40,14 +40,14 @@ def player_two_transitions(length, width, offset_r, offset_y):
     transition_list = []
     for i in range(length):
         for j in range(width):
-            transition = [("Red", offset_r + i * width + j),  # para el primer grupo de player 1
+            transition = [("Green", offset_r + i * width + j),  # para el primer grupo de player 1
                           ("Yellow", offset_y + i * width + j)]  # para el segundo grupo
             transition_list.append(transition)
     return transition_list
 
 
 def player_one_down_transitions(length, width, offset, winning_state=None):
-    # Player 1 transitions for red (going down)
+    # Player 1 transitions for Green (going down)
     # they are sent to the corresponding prob state
     transition_list = []
     for i in range(length):
@@ -427,7 +427,7 @@ def write_robot_C(my_file, length, width, moves, rewards, loose_tiles, prob_tile
     transition_list += prob_robot_right_break_transitions(
         length, width, prob_robot_break, offset=(tile_break*n_tiles))
 
-    # 8 light red break
+    # 8 light Green break
     transition_list += prob_light_break_transitions(
         length, width, prob_light_break, offset_ok=(robot_down*n_tiles),
         offset_break=(robot_down_left_right*n_tiles))
