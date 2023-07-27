@@ -92,13 +92,10 @@ class StochasticGame:
             return reachability_strategies, reachability_strategies
 
         # This will leave us with a new state list,
-        # where the states that are not reachable from the final states are removed
+        # where the states that can not reach the final states are removed
         # and the probability is distributed among the remaining states
         logging.info("Only keeping states with biggest probability to reach the objective ...")
         solver.prune_states(reachability_strategies)
-
-        # This will calculate the upper bound and the initial value for the total rewards
-        solver.calculate_upper_bound()
 
         logging.info("Solving total rewards ...")
         final_strategies = solver.solve_total_rewards()
@@ -121,7 +118,7 @@ class Node:
         self.is_final_node = is_final_node
         self.reach_probability = 1 if is_final_node else 0
         self.reach_probability_next = 0
-        self.expected_rewards = reward  # TODO: ver que valor queremos
+        self.expected_rewards = reward
         self.expected_rewards_next = 0
         self.num_states = num_states
         self.check_next_states()
@@ -183,6 +180,7 @@ class ProbabilisticNode(Node):
     def remove_path(self, state_to_remove):
         self.next_states.remove(state_to_remove)
         new_next_states = []
+        # redistribute probability
         for _next_state in self.next_states:
             new_state_probability = _next_state[PROBABILITY] / (1 - state_to_remove[PROBABILITY])
             new_next_states.append((new_state_probability, _next_state[NEXT_STATE_IDX]))
@@ -229,17 +227,14 @@ class PlayerOne(Node):
             if action in best_strategies]
 
     def get_best_strategies_total_rewards(self, state_list):
-        # esto ya no tiene que estar multiplicado por la reachability (creo)
         max_rewards = 0
         best_strategies = []
         for action, next_state_idx in self.next_states:
             _next_state = state_list[next_state_idx]
-            next_state_expected_rewards = \
-                _next_state.expected_rewards * _next_state.reach_probability
-            if next_state_expected_rewards > max_rewards:
-                max_rewards = next_state_expected_rewards
+            if _next_state.expected_rewards > max_rewards:
+                max_rewards = _next_state.expected_rewards
                 best_strategies = [action]
-            elif next_state_expected_rewards == max_rewards:
+            elif _next_state.expected_rewards == max_rewards:
                 best_strategies.append(action)
         return best_strategies
 
@@ -324,23 +319,33 @@ class Solver:
         for idx, state in enumerate(self.state_list):
             if state.player == PLAYER_1:
                 state.prune_state(reachability_strategies[idx])
-            # borrar los caminos a nodos con reach 0
-            # if state.player == PROBABILISTIC:
-            #     for _next_state in state.next_states:
-            #         next_state = self.state_list[_next_state[NEXT_STATE_IDX]]
-            #         if next_state.reach_probability == 0:
-            #             state.remove_path(_next_state)
-        # ademas de cortar estos caminos,
-        # hay que borrar los caminos a los nodos que tienen alcanzabilidad 0.
-        # y hay que distribuir la probabilidad de los nodos que se eliminaron.
-        pass
+            if state.player == PROBABILISTIC:
+                for _next_state in state.next_states:
+                    next_state = self.state_list[_next_state[NEXT_STATE_IDX]]
+                    if next_state.reach_probability == 0:
+                        state.remove_path(_next_state)
+        self.remove_states_that_can_not_reach_the_target()
 
-    def calculate_upper_bound(self):
-        """This function calculates the upper bound for the total rewards
-            and initializes the value for the total rewards for each state"""
-        # hacer que los caminos del jugador 2 sean probabilisticos, con probabilidad uniforme
-        # y hacer value iteration de rewards
-        pass
+    # TODO test this
+    # Habria que agregar el ejemplo que estuvimos hablando por mail el 26 de julio
+    def remove_states_that_can_not_reach_the_target(self):
+        finished = False
+        not_reachable_states = []
+
+        while not finished:
+            reachable_states = [0]
+            not_reachable_states_new = []
+            for state in self.state_list:
+                for next_state in state.next_states:
+                    reachable_states.append(next_state[NEXT_STATE_IDX])
+
+            for idx, state in enumerate(self.state_list):
+                if idx not in reachable_states and state.player != PLAYER_1:
+                    not_reachable_states_new.append(idx)
+                    self.state_list[idx].next_states = []
+
+            finished = set(not_reachable_states_new) == set(not_reachable_states)
+            not_reachable_states = not_reachable_states_new
 
     def solve_total_rewards(self):
         """This function returns a list of strategies for total rewards.
@@ -360,7 +365,6 @@ class Solver:
             logging.debug(f"iteration {i}")
             i += 1
             for state in self.state_list:
-                # tener en cuenta el U como maximo en el value iteration
                 state.expected_rewards_next = state.value_iteration_rewards(self.state_list)
 
             diff = max([
