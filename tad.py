@@ -85,23 +85,28 @@ class StochasticGame:
             self.transition_list, self.final_states)
         logging.debug(f"Reachability strategies: {reachability_strategies}")
 
-        # Not sure if we want to do this taking U into account
-        if self.only_one_strategy(reachability_strategies):
-            logging.info("Only one strategy left per node, no need to calculate total rewards.")
-            logging.info("Done!")
-            return reachability_strategies, reachability_strategies
+        # if self.only_one_strategy(reachability_strategies):
+        #     logging.info("Only one strategy left per node, no need to calculate total rewards.")
+        #     logging.info("Done!")
+        #     return reachability_strategies, reachability_strategies
 
         # This will leave us with a new state list,
         # where the states that can not reach the final states are removed
         # and the probability is distributed among the remaining states
         logging.info("Only keeping states with biggest probability to reach the objective ...")
-        solver.prune_states(reachability_strategies)
+        solver.prune_stochastich_game(reachability_strategies)
 
         logging.info("Solving total rewards ...")
         final_strategies = solver.solve_total_rewards()
 
         logging.info("Done!")
         return final_strategies, reachability_strategies
+
+
+# # TODO: remove this
+# def debug_next_states(state_list):
+#     for state in state_list:
+#         print(state.idx, state.next_states)
 
 
 class Node:
@@ -170,12 +175,21 @@ class ProbabilisticNode(Node):
         return value
 
     def value_iteration_rewards(self, state_list):
+        if not self.next_states:
+            return 0
         value = 0
         for next_state in self.next_states:
             _next_state = state_list[next_state[NEXT_STATE_IDX]]
             value += _next_state.expected_rewards * next_state[PROBABILITY]
         value += self.reward
         return value
+
+    # TODO: test this
+    def prune_paths(self, state_list):
+        for _next_state in self.next_states:
+            next_state = state_list[_next_state[NEXT_STATE_IDX]]
+            if next_state.reach_probability == 0:
+                self.remove_path(_next_state)
 
     def remove_path(self, state_to_remove):
         self.next_states.remove(state_to_remove)
@@ -201,6 +215,8 @@ class PlayerOne(Node):
         return max_reach_prob
 
     def value_iteration_rewards(self, state_list):
+        if not self.next_states:
+            return 0
         max_rewards = 0
         for next_state in self.next_states:
             next_state_exp_rewards = state_list[next_state[NEXT_STATE_IDX]].expected_rewards
@@ -221,10 +237,20 @@ class PlayerOne(Node):
                 best_strategies.append(action)
         return best_strategies
 
-    def prune_state(self, best_strategies):
+    def prune_paths_reachability(self, best_strategies):
         self.next_states = [
             (action, next_state) for action, next_state in self.next_states
             if action in best_strategies]
+
+    # TODO: test this
+    def prune_paths(self, state_list):
+        for _next_state in self.next_states:
+            next_state = state_list[_next_state[NEXT_STATE_IDX]]
+            if next_state.reach_probability == 0:
+                self.remove_path(_next_state)
+
+    def remove_path(self, state_to_remove):
+        self.next_states.remove(state_to_remove)
 
     def get_best_strategies_total_rewards(self, state_list):
         max_rewards = 0
@@ -253,6 +279,8 @@ class PlayerTwo(Node):
         return min_reach_prob
 
     def value_iteration_rewards(self, state_list):
+        if not self.next_states:
+            return 0
         # init min value with the value of the first state
         min_rewards = state_list[self.next_states[0][NEXT_STATE_IDX]].expected_rewards
         for next_state in self.next_states:
@@ -315,20 +343,22 @@ class Solver:
                 strategies[state.idx] = state.get_best_strategies_reachability(self.state_list)
         return strategies
 
-    def prune_states(self, reachability_strategies):
+    def prune_stochastich_game(self, reachability_strategies):
+        self.prune_paths(reachability_strategies)
+        self.prune_states()
+
+    # TODO test this
+    def prune_paths(self, reachability_strategies):
         for idx, state in enumerate(self.state_list):
             if state.player == PLAYER_1:
-                state.prune_state(reachability_strategies[idx])
+                state.prune_paths_reachability(reachability_strategies[idx])
             if state.player == PROBABILISTIC:
-                for _next_state in state.next_states:
-                    next_state = self.state_list[_next_state[NEXT_STATE_IDX]]
-                    if next_state.reach_probability == 0:
-                        state.remove_path(_next_state)
-        self.remove_states_that_can_not_reach_the_target()
+                state.prune_paths(self.state_list)
 
     # TODO test this
     # Habria que agregar el ejemplo que estuvimos hablando por mail el 26 de julio
-    def remove_states_that_can_not_reach_the_target(self):
+    def prune_states(self):
+        # TODO agregar el caso en que todo el juego tiene 0 reachability.
         finished = False
         not_reachable_states = []
 
@@ -340,10 +370,13 @@ class Solver:
                     reachable_states.append(next_state[NEXT_STATE_IDX])
 
             for idx, state in enumerate(self.state_list):
-                if idx not in reachable_states and state.player != PLAYER_1:
+                if state.player != PLAYER_1 and idx not in reachable_states:
                     not_reachable_states_new.append(idx)
                     self.state_list[idx].next_states = []
-
+                elif state.player == PLAYER_1:
+                    # TODO esto parece que deberia ir en la funcion anterior,
+                    # pero hay que cambiar tests
+                    state.prune_paths(self.state_list)
             finished = set(not_reachable_states_new) == set(not_reachable_states)
             not_reachable_states = not_reachable_states_new
 
@@ -370,15 +403,17 @@ class Solver:
             diff = max([
                 abs(state.expected_rewards_next - state.expected_rewards)
                 for state in self.state_list])
+
             for state in self.state_list:
                 logging.debug(f"{state.idx} {state.expected_rewards}")
                 state.expected_rewards = state.expected_rewards_next
             logging.debug("-"*80)
 
-        logging.debug(f"iteration {i}")
-        for state in self.state_list:
-            logging.debug(f"{state.idx} {state.expected_rewards}")
-        logging.debug("-"*80)
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            logging.debug(f"iteration {i}")
+            for state in self.state_list:
+                logging.debug(f"{state.idx} {state.expected_rewards}")
+            logging.debug("-"*80)
 
     def _get_total_rewards_strategies(self):
         """This function returns a list of strategies that maximize total rewards"""

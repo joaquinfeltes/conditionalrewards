@@ -706,3 +706,143 @@ def stochastic_game_next_states_wrong_state_idx():
             [(1, 10)], [(1, 2)], [(1, 2)]
             ],
     )
+
+
+# ----------------------------------------------------------------------------#
+# Stochastic game for probability redistribution
+
+@pytest.fixture
+def node_0_redistrib():
+    return ProbabilisticNode(
+        player=PROBABILISTIC,
+        idx=0,
+        reward=1,
+        next_states=[
+            (0.5, 1),
+            (0.5, 5),
+        ],
+        num_states=6,
+        is_final_node=False,
+    )
+
+
+@pytest.fixture
+def node_1_redistrib():
+    return PlayerOne(
+        player=PLAYER_1,
+        idx=1,
+        reward=2,
+        next_states=[
+            ("epsilon", 2),
+        ],
+        num_states=6,
+        is_final_node=False,
+    )
+
+
+@pytest.fixture
+def node_2_redistrib():
+    return PlayerTwo(
+        player=PLAYER_2,
+        idx=2,
+        reward=3,
+        next_states=[
+            ("beta", 3),
+            ("alfa", 4),
+        ],
+        num_states=6,
+        is_final_node=False,
+    )
+
+
+@pytest.fixture
+def node_3_redistrib():
+    return PlayerOne(
+        player=PLAYER_1,
+        idx=3,
+        reward=4,
+        next_states=[
+            ("delta", 4),
+            ("gamma", 5),
+        ],
+        num_states=6,
+        is_final_node=False,
+    )
+
+
+@pytest.fixture
+def node_4_redistrib():
+    return ProbabilisticNode(
+        player=PROBABILISTIC,
+        idx=4,
+        reward=5,
+        next_states=[
+            (1, 4),
+        ],
+        num_states=6,
+        is_final_node=False,
+    )
+
+
+@pytest.fixture
+def node_5_redistrib():
+    return ProbabilisticNode(
+        player=PROBABILISTIC,
+        idx=5,
+        reward=6,
+        next_states=[
+            (1, 5),
+        ],
+        num_states=6,
+        is_final_node=True,
+    )
+
+
+@pytest.fixture
+def state_list_redistrib(
+        node_0_redistrib, node_1_redistrib, node_2_redistrib,
+        node_3_redistrib, node_4_redistrib, node_5_redistrib):
+    state_list = [
+        node_0_redistrib, node_1_redistrib, node_2_redistrib,
+        node_3_redistrib, node_4_redistrib, node_5_redistrib]
+    for node in state_list:
+        if node.is_final_node:
+            node.reach_probability = 1
+    return state_list
+
+
+# TODO borrar cuando termine de debuggear
+#  esta parte es para el ipdb, solo quiero el state list porque solo quiero ver las funciones nuevas
+# de redistribucion de probabilidad y eliminacion de nodos.
+@pytest.fixture
+def rewards_redistrib():
+    return [1, 2, 3, 4, 5, 6]
+
+
+@pytest.fixture
+def players_redistrib():
+    return [PROBABILISTIC, PLAYER_1, PLAYER_2, PLAYER_1, PROBABILISTIC, PROBABILISTIC]
+
+
+@pytest.fixture
+def transition_list_redistrib():
+    return [
+        [(0.5, 1), (0.5, 5)], [("epsilon", 2)], [("beta", 3), ("alfa", 4)],
+        [("delta", 4), ("gamma", 5)], [(1, 4)], [(1, 5)]
+    ]
+
+
+@pytest.fixture
+def final_states_redistrib():
+    return [5]
+
+
+@pytest.fixture
+def stochastic_game_redistrib(
+        rewards_redistrib, players_redistrib, transition_list_redistrib, final_states_redistrib):
+    return StochasticGame(
+        players=players_redistrib,
+        rewards=rewards_redistrib,
+        final_states=final_states_redistrib,
+        transition_list=transition_list_redistrib,
+    )

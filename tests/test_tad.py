@@ -190,10 +190,11 @@ def test_player_one_get_best_strategies_reachability_two_strategies(
         expected_best_strategies
 
 
+# TODO todas las funciones de prune del solver, cambiarlas a la primera subfuncion de prune.
 def test_player_one_prune_state(player_one_node_0):
     best_strategies = ["a"]
     assert player_one_node_0.next_states == [("a", 1), ("b", 2)]
-    player_one_node_0.prune_state(best_strategies)
+    player_one_node_0.prune_paths_reachability(best_strategies)
     assert player_one_node_0.next_states == [("a", 1)]
 
 
@@ -337,9 +338,9 @@ def test_get_reachability_strategies(state_list_game_5_5):
     assert reachability_strategies == expected_reachability_strategies
 
 
-def test_prune_states(state_list_game_5_5):
+def test_prune_stochastich_game(state_list_game_5_5):
     reachability_strategies = [["beta"], None, None, None, None, None, None, None]
-    Solver(state_list_game_5_5).prune_states(reachability_strategies)
+    Solver(state_list_game_5_5).prune_stochastich_game(reachability_strategies)
     # expected_nodes_transitions = [[("beta", 2)], [(' ', 3)], [(' ', 4)], [(0.5, 5), (0.5, 6)],
     #                               [(0.75, 6), (0.25, 7)], [(1, 5)], [(1, 6)], [(1, 7)]]
     # After deleting states
@@ -389,3 +390,34 @@ def test_get_total_rewards_strategies(state_list_game_5_5):
     # as the rewards are the same
     expected_total_rewards_strategies = [["alfa"], None, None, None, None, None, None, None]
     assert total_rewards_strategies == expected_total_rewards_strategies
+
+
+# TODO remove this
+# def test_test(stochastic_game_redistrib):
+#     import ipdb
+#     ipdb.set_trace()
+#     stochastic_game_redistrib.solve()
+#     assert True
+
+
+# ademas ya de por si me di cuenta que esta mal la funcion, hay que cambiar cosas cuando el player es 1
+# no puede ser que cuando sea player uno no se limpie, porque si es player 1 y no tiene alcanzabilidad
+# si hay que borrar las cosas. 
+
+
+# TODO move to proper position in this file
+def test_prune_states(state_list_redistrib):
+    solver = Solver(state_list_redistrib)
+    reachability_strategies = [None, ["epsilon"], None, ["gamma"], None, None]
+    solver.prune_paths(reachability_strategies)
+    expected_transitions = [
+        [(1, 5)], [], [], [("gamma", 5)], [], [(1, 5)]]
+    
+    # TODO PRIMERO HACER ESTO parece que falla en el del player 2,
+    # debe parar de iterar antes de poder borrarlo, ver con ipdb
+    import ipdb
+    ipdb.set_trace()
+
+    solver.prune_states()
+    for state, expected_next_states in zip(state_list_redistrib, expected_transitions):
+        assert state.next_states == expected_next_states
