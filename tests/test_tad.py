@@ -4,7 +4,8 @@ from tad import (
     PLAYER_1,
     PLAYER_2,
     PROBABILISTIC,
-    Solver
+    Solver,
+    debug_states
 )
 
 
@@ -190,7 +191,7 @@ def test_player_one_get_best_strategies_reachability_two_strategies(
         expected_best_strategies
 
 
-# TODO todas las funciones de prune del solver, cambiarlas a la primera subfuncion de prune.
+# TODO [2] todas las funciones de prune del solver, cambiarlas a la primera subfuncion de prune.
 def test_player_one_prune_state(player_one_node_0):
     best_strategies = ["a"]
     assert player_one_node_0.next_states == [("a", 1), ("b", 2)]
@@ -204,7 +205,7 @@ def test_player_one_get_best_strategies_total_rewards(
     # ahora la mejor estrategia es la "b" porque tiene mas rewards. pero
     # ya lo deberia haber borrado en el prune y deberia ser "a"
     # porque "a" es final y "b" es sink
-    # TODO hacer el preproceso de prune
+    # TODO [4] hacer el preproceso de prune
     # en este momento tambien deberia haber hecho el value iteration de rewards
     assert player_one_node_0.get_best_strategies_total_rewards(
         state_list_w_player_one_at_start) == expected_best_strategies
@@ -350,11 +351,21 @@ def test_prune_stochastich_game(state_list_game_5_5):
         assert state.next_states == expected_transitions
 
 
+def test_prune_states(state_list_redistrib):
+    solver = Solver(state_list_redistrib)
+    expected_transitions = [[(1, 5)], [], [], [("gamma", 5)], [], [(1, 5)]]
+    reachability_strategies = [None, ["epsilon"], None, ["gamma"], None, None]
+    solver.prune_paths(reachability_strategies)
+    solver.prune_states()
+    for state, expected_next_states in zip(state_list_redistrib, expected_transitions):
+        assert state.next_states == expected_next_states
+
+
 def test_solve_total_rewards(
         state_list_game_5_5, transition_list_game_5_5, reachability_strategies_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
     test_get_total_rewards_strategies = Solver(state_list_game_5_5).solve_total_rewards()
-    # TODO alfa has more rewards, but taking into account the conditional rewards, beta is better
+    # TODO [4] alfa has more rewards, but taking into account the conditional rewards, beta is better
     # but in this case we don't prune the states, so is not taking into account the conditional
     # expected_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
     expected_total_rewards_strategies = [["alfa"], None, None, None, None, None, None, None]
@@ -382,7 +393,7 @@ def test_value_iteration_total_rewards(state_list_game_5_5):
 def test_get_total_rewards_strategies(state_list_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
     total_rewards_strategies = Solver(state_list_game_5_5)._get_total_rewards_strategies()
-    # TODO alfa has more rewards, but taking into account the conditional rewards, beta is better
+    # TODO [4] alfa has more rewards, but taking into account the conditional rewards, beta is better
     # but in this case we don't prune the states, so is not taking into account the conditional
     # expected_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
 
@@ -392,32 +403,9 @@ def test_get_total_rewards_strategies(state_list_game_5_5):
     assert total_rewards_strategies == expected_total_rewards_strategies
 
 
-# TODO remove this
+# TODO [5] remove this
 # def test_test(stochastic_game_redistrib):
-#     import ipdb
-#     ipdb.set_trace()
+#     # import ipdb
+#     # ipdb.set_trace()
 #     stochastic_game_redistrib.solve()
 #     assert True
-
-
-# ademas ya de por si me di cuenta que esta mal la funcion, hay que cambiar cosas cuando el player es 1
-# no puede ser que cuando sea player uno no se limpie, porque si es player 1 y no tiene alcanzabilidad
-# si hay que borrar las cosas. 
-
-
-# TODO move to proper position in this file
-def test_prune_states(state_list_redistrib):
-    solver = Solver(state_list_redistrib)
-    reachability_strategies = [None, ["epsilon"], None, ["gamma"], None, None]
-    solver.prune_paths(reachability_strategies)
-    expected_transitions = [
-        [(1, 5)], [], [], [("gamma", 5)], [], [(1, 5)]]
-    
-    # TODO PRIMERO HACER ESTO parece que falla en el del player 2,
-    # debe parar de iterar antes de poder borrarlo, ver con ipdb
-    import ipdb
-    ipdb.set_trace()
-
-    solver.prune_states()
-    for state, expected_next_states in zip(state_list_redistrib, expected_transitions):
-        assert state.next_states == expected_next_states

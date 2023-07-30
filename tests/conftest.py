@@ -716,7 +716,7 @@ def node_0_redistrib():
     return ProbabilisticNode(
         player=PROBABILISTIC,
         idx=0,
-        reward=1,
+        reward=0,
         next_states=[
             (0.5, 1),
             (0.5, 5),
@@ -775,7 +775,7 @@ def node_4_redistrib():
     return ProbabilisticNode(
         player=PROBABILISTIC,
         idx=4,
-        reward=5,
+        reward=0,
         next_states=[
             (1, 4),
         ],
@@ -789,7 +789,7 @@ def node_5_redistrib():
     return ProbabilisticNode(
         player=PROBABILISTIC,
         idx=5,
-        reward=6,
+        reward=0,
         next_states=[
             (1, 5),
         ],
@@ -811,38 +811,38 @@ def state_list_redistrib(
     return state_list
 
 
-# TODO borrar cuando termine de debuggear
+# TODO [5] borrar cuando termine de debuggear
 #  esta parte es para el ipdb, solo quiero el state list porque solo quiero ver las funciones nuevas
 # de redistribucion de probabilidad y eliminacion de nodos.
-@pytest.fixture
-def rewards_redistrib():
-    return [1, 2, 3, 4, 5, 6]
+# @pytest.fixture
+# def rewards_redistrib():
+#     return [0, 2, 3, 4, 0, 0]
 
 
-@pytest.fixture
-def players_redistrib():
-    return [PROBABILISTIC, PLAYER_1, PLAYER_2, PLAYER_1, PROBABILISTIC, PROBABILISTIC]
+# @pytest.fixture
+# def players_redistrib():
+#     return [PROBABILISTIC, PLAYER_1, PLAYER_2, PLAYER_1, PROBABILISTIC, PROBABILISTIC]
 
 
-@pytest.fixture
-def transition_list_redistrib():
-    return [
-        [(0.5, 1), (0.5, 5)], [("epsilon", 2)], [("beta", 3), ("alfa", 4)],
-        [("delta", 4), ("gamma", 5)], [(1, 4)], [(1, 5)]
-    ]
+# @pytest.fixture
+# def transition_list_redistrib():
+#     return [
+#         [(0.5, 1), (0.5, 5)], [("epsilon", 2)], [("beta", 3), ("alfa", 4)],
+#         [("delta", 4), ("gamma", 5)], [(1, 4)], [(1, 5)]
+#     ]
 
 
-@pytest.fixture
-def final_states_redistrib():
-    return [5]
+# @pytest.fixture
+# def final_states_redistrib():
+#     return [5]
 
 
-@pytest.fixture
-def stochastic_game_redistrib(
-        rewards_redistrib, players_redistrib, transition_list_redistrib, final_states_redistrib):
-    return StochasticGame(
-        players=players_redistrib,
-        rewards=rewards_redistrib,
-        final_states=final_states_redistrib,
-        transition_list=transition_list_redistrib,
-    )
+# @pytest.fixture
+# def stochastic_game_redistrib(
+#         rewards_redistrib, players_redistrib, transition_list_redistrib, final_states_redistrib):
+#     return StochasticGame(
+#         players=players_redistrib,
+#         rewards=rewards_redistrib,
+#         final_states=final_states_redistrib,
+#         transition_list=transition_list_redistrib,
+#     )

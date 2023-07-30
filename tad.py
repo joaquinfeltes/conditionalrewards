@@ -103,10 +103,17 @@ class StochasticGame:
         return final_strategies, reachability_strategies
 
 
-# # TODO: remove this
-# def debug_next_states(state_list):
-#     for state in state_list:
-#         print(state.idx, state.next_states)
+# TODO [5] remove this
+def debug_states(state_list):
+    for state in state_list:
+        print(f"State: {state.idx}")
+        print(f"Player: {state.player}")
+        print(f"Reward: {state.reward}")
+        print(f"Next states: {state.next_states}")
+        print(f"Is final node: {state.is_final_node}")
+        print(f"Reach probability: {state.reach_probability}")
+        print(f"Expected rewards: {state.expected_rewards}")
+        print("-"*80)
 
 
 class Node:
@@ -184,7 +191,7 @@ class ProbabilisticNode(Node):
         value += self.reward
         return value
 
-    # TODO: test this
+    # TODO [2]: test this
     def prune_paths(self, state_list):
         for _next_state in self.next_states:
             next_state = state_list[_next_state[NEXT_STATE_IDX]]
@@ -242,7 +249,7 @@ class PlayerOne(Node):
             (action, next_state) for action, next_state in self.next_states
             if action in best_strategies]
 
-    # TODO: test this
+    # TODO [2] test this
     def prune_paths(self, state_list):
         for _next_state in self.next_states:
             next_state = state_list[_next_state[NEXT_STATE_IDX]]
@@ -331,6 +338,8 @@ class Solver:
         for state in self.state_list:
             logging.debug(f"{state.idx} {state.reach_probability}")
         logging.debug("-"*80)
+        if self.state_list[0].reach_probability == 0:
+            raise ValueError("The game has no solution.")
 
     def _get_reachability_strategies(self):
         """This function returns a list of strategies that maximize
@@ -347,18 +356,18 @@ class Solver:
         self.prune_paths(reachability_strategies)
         self.prune_states()
 
-    # TODO test this
+    # TODO [2] test this
     def prune_paths(self, reachability_strategies):
         for idx, state in enumerate(self.state_list):
             if state.player == PLAYER_1:
                 state.prune_paths_reachability(reachability_strategies[idx])
+                state.prune_paths(self.state_list)
             if state.player == PROBABILISTIC:
                 state.prune_paths(self.state_list)
 
-    # TODO test this
+    # TODO [2] test this
     # Habria que agregar el ejemplo que estuvimos hablando por mail el 26 de julio
     def prune_states(self):
-        # TODO agregar el caso en que todo el juego tiene 0 reachability.
         finished = False
         not_reachable_states = []
 
@@ -373,10 +382,9 @@ class Solver:
                 if state.player != PLAYER_1 and idx not in reachable_states:
                     not_reachable_states_new.append(idx)
                     self.state_list[idx].next_states = []
-                elif state.player == PLAYER_1:
-                    # TODO esto parece que deberia ir en la funcion anterior,
-                    # pero hay que cambiar tests
-                    state.prune_paths(self.state_list)
+                elif state.player == PLAYER_1 and not state.next_states \
+                        and idx not in reachable_states:
+                    not_reachable_states_new.append(idx)
             finished = set(not_reachable_states_new) == set(not_reachable_states)
             not_reachable_states = not_reachable_states_new
 
