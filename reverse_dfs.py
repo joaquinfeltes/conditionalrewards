@@ -1,6 +1,4 @@
-# This file contains the functions needed to perform a reverse dfs
-#  on a transition matrix
-
+# This file contains the functions needed to perform a reverse dfs on a transition matrix
 
 def reverse_dfs(transition_list: list, final_states: list) -> list:
     transitions = reverse_transition_list(transition_list)

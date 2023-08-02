@@ -59,7 +59,6 @@ def run_games(games_dict):
 
 
 def set_logger(level=logging.INFO):
-    # import ipdb; ipdb.set_trace()
     if not level:
         return None
     if level == "INFO" or level == "i":

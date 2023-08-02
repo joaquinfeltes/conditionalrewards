@@ -35,13 +35,11 @@ def gen_rnd_board(seed, length, width, prob_loose_tile, max_reward=6):
 
 
 def player_two_transitions(length, width, offset_r, offset_y):
-    # Puedo mandar siempre a un probabilista con prob 1
-    # y si se puede romper le cambio la probabilidad y listo
     transition_list = []
     for i in range(length):
         for j in range(width):
-            transition = [("Green", offset_r + i * width + j),  # para el primer grupo de player 1
-                          ("Yellow", offset_y + i * width + j)]  # para el segundo grupo
+            transition = [("Green", offset_r + i * width + j),  # To the player 1 down
+                          ("Yellow", offset_y + i * width + j)]  # To the player 1 left right
             transition_list.append(transition)
     return transition_list
 
@@ -64,7 +62,7 @@ def player_one_down_transitions(length, width, offset, winning_state=None):
 
 
 def player_one_left_right_transitions(length, width, moves, offset_l, offset_r):
-    # Player 1 transitions for yellow (going left or right)
+    # Player 1 transitions for Yellow (going left or right)
     # they are sent to the corresponding prob state
     transition_list = []
     for i in range(length):
@@ -184,9 +182,8 @@ def write_robot_A(my_file, length, width, moves, rewards, loose_tiles, prob_tile
 
 
 def prob_robot_down_break_transitions(length, width, prob_robot_break, offset, winning_state):
-    # tiene que llevar a los probabilistas de antes de la luz
-    # si se rompe, va al del mismo estado en el que ya estaba
-    # si no se rompe, va abajo como tocaba
+    # If it breaks has to go to the probabilistic state of the same tile
+    # If it doesn't break, it goes down as it does normally
     transition_list = []
     for i in range(length):
         for j in range(width):
@@ -201,9 +198,8 @@ def prob_robot_down_break_transitions(length, width, prob_robot_break, offset, w
 
 
 def prob_robot_left_break_transitions(length, width, prob_robot_break, offset):
-    # tiene que llevar a los probabilistas de antes de la luz
-    # si se rompe, va al del mismo estado en el que ya estaba
-    # si no se rompe, va a izquierda como tocaba
+    # If it breaks has to go to the probabilistic state of the same tile
+    # If it doesn't break, it goes left as it does normally
     transition_list = []
     for i in range(length):
         for j in range(width):
@@ -218,9 +214,8 @@ def prob_robot_left_break_transitions(length, width, prob_robot_break, offset):
 
 
 def prob_robot_right_break_transitions(length, width, prob_robot_break, offset):
-    # tiene que llevar a los probabilistas de antes de la luz
-    # si se rompe, va al del mismo estado en el que ya estaba
-    # si no se rompe, va a derecha como tocaba
+    # If it breaks has to go to the probabilistic state of the same tile
+    # If it doesn't break, it goes right as it does normally
     transition_list = []
     for i in range(length):
         for j in range(width):
@@ -264,7 +259,7 @@ def write_robot_B(my_file, length, width, moves, rewards, loose_tiles, prob_tile
     my_players = ["Player 2" for i in range(n_tiles)] + \
                  ["Player 1" for i in range(n_tiles*n_robot_groups)] + \
                  ["Probabilistic" for i in range(n_tiles*n_prob_groups)] + \
-                 ["Probabilistic", "Probabilistic"]  # The bad and the good states
+                 ["Probabilistic", "Probabilistic"]
 
     my_final_states = [winning_state]
 
@@ -297,7 +292,6 @@ def write_robot_B(my_file, length, width, moves, rewards, loose_tiles, prob_tile
     transition_list += prob_robot_right_break_transitions(
         length, width, prob_robot_break, offset=(tile_break*n_tiles))
 
-    # the bad and the good states are loops to themselves
     transition_list.append([(1, loosing_state)])
     transition_list.append([(1, winning_state)])
 
@@ -389,7 +383,7 @@ def write_robot_C(my_file, length, width, moves, rewards, loose_tiles, prob_tile
     my_players = ["Player 2" for i in range(n_tiles)] + \
                  ["Player 1" for i in range(n_tiles*n_robot_groups)] + \
                  ["Probabilistic" for i in range(n_tiles*n_prob_groups)] + \
-                 ["Probabilistic", "Probabilistic"]  # The bad and the good states
+                 ["Probabilistic", "Probabilistic"]
 
     my_final_states = [winning_state]
 
@@ -432,12 +426,11 @@ def write_robot_C(my_file, length, width, moves, rewards, loose_tiles, prob_tile
         length, width, prob_light_break, offset_ok=(robot_down*n_tiles),
         offset_break=(robot_down_left_right*n_tiles))
 
-    # 9 light yellow break
+    # 9 light Yellow break
     transition_list += prob_light_break_transitions(
         length, width, prob_light_break, offset_ok=(robot_left_right*n_tiles),
         offset_break=(robot_down_left_right*n_tiles))
 
-    # the bad and the good states are loops to themselves
     transition_list.append([(1, loosing_state)])
     transition_list.append([(1, winning_state)])
 
