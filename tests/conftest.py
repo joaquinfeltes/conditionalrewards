@@ -420,7 +420,7 @@ def state_list_game_5_5(
 @pytest.fixture
 def transition_list_game_5_5():
     return [
-        [('alfa', 1), ('beta', 2)], [(' ', 3)], [(' ', 4)],
+        [("alfa", 1), ("beta", 2)], [(" ", 3)], [(" ", 4)],
         [(0.5, 5), (0.5, 6)], [(0.75, 6), (0.25, 7)],
         [(1, 5)], [(1, 6)], [(1, 7)]
     ]
@@ -477,7 +477,7 @@ def state_list_game_5_5_same_reach(
 @pytest.fixture
 def transition_list_game_5_5_same_reach():
     return [
-        [('alfa', 1), ('beta', 2)], [(' ', 3)], [(' ', 4)],
+        [("alfa", 1), ("beta", 2)], [(" ", 3)], [(" ", 4)],
         [(0.5, 5), (0.5, 6)], [(0.5, 6), (0.5, 7)],
         [(1, 5)], [(1, 6)], [(1, 7)]
         ]
@@ -809,40 +809,3 @@ def state_list_redistrib(
         if node.is_final_node:
             node.reach_probability = 1
     return state_list
-
-
-# TODO [5] borrar cuando termine de debuggear
-#  esta parte es para el ipdb, solo quiero el state list porque solo quiero ver las funciones nuevas
-# de redistribucion de probabilidad y eliminacion de nodos.
-# @pytest.fixture
-# def rewards_redistrib():
-#     return [0, 2, 3, 4, 0, 0]
-
-
-# @pytest.fixture
-# def players_redistrib():
-#     return [PROBABILISTIC, PLAYER_1, PLAYER_2, PLAYER_1, PROBABILISTIC, PROBABILISTIC]
-
-
-# @pytest.fixture
-# def transition_list_redistrib():
-#     return [
-#         [(0.5, 1), (0.5, 5)], [("epsilon", 2)], [("beta", 3), ("alfa", 4)],
-#         [("delta", 4), ("gamma", 5)], [(1, 4)], [(1, 5)]
-#     ]
-
-
-# @pytest.fixture
-# def final_states_redistrib():
-#     return [5]
-
-
-# @pytest.fixture
-# def stochastic_game_redistrib(
-#         rewards_redistrib, players_redistrib, transition_list_redistrib, final_states_redistrib):
-#     return StochasticGame(
-#         players=players_redistrib,
-#         rewards=rewards_redistrib,
-#         final_states=final_states_redistrib,
-#         transition_list=transition_list_redistrib,
-#     )

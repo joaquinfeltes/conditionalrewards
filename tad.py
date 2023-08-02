@@ -85,15 +85,12 @@ class StochasticGame:
             self.transition_list, self.final_states)
         logging.debug(f"Reachability strategies: {reachability_strategies}")
 
-        # if self.only_one_strategy(reachability_strategies):
-        #     logging.info("Only one strategy left per node, no need to calculate total rewards.")
-        #     logging.info("Done!")
-        #     return reachability_strategies, reachability_strategies
+        if self.only_one_strategy(reachability_strategies):
+            logging.info("Only one strategy left per node, no need to calculate total rewards.")
+            logging.info("Done!")
+            return reachability_strategies, reachability_strategies
 
-        # This will leave us with a new state list,
-        # where the states that can not reach the final states are removed
-        # and the probability is distributed among the remaining states
-        logging.info("Only keeping states with biggest probability to reach the objective ...")
+        logging.info("Prunning states with no reachability ...")
         solver.prune_stochastich_game(reachability_strategies)
 
         logging.info("Solving total rewards ...")
@@ -101,19 +98,6 @@ class StochasticGame:
 
         logging.info("Done!")
         return final_strategies, reachability_strategies
-
-
-# TODO [5] remove this
-def debug_states(state_list):
-    for state in state_list:
-        print(f"State: {state.idx}")
-        print(f"Player: {state.player}")
-        print(f"Reward: {state.reward}")
-        print(f"Next states: {state.next_states}")
-        print(f"Is final node: {state.is_final_node}")
-        print(f"Reach probability: {state.reach_probability}")
-        print(f"Expected rewards: {state.expected_rewards}")
-        print("-"*80)
 
 
 class Node:
@@ -191,7 +175,6 @@ class ProbabilisticNode(Node):
         value += self.reward
         return value
 
-    # TODO [2]: test this
     def prune_paths(self, state_list):
         for _next_state in self.next_states:
             next_state = state_list[_next_state[NEXT_STATE_IDX]]
@@ -249,7 +232,6 @@ class PlayerOne(Node):
             (action, next_state) for action, next_state in self.next_states
             if action in best_strategies]
 
-    # TODO [2] test this
     def prune_paths(self, state_list):
         for _next_state in self.next_states:
             next_state = state_list[_next_state[NEXT_STATE_IDX]]
