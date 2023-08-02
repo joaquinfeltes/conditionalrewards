@@ -16,6 +16,7 @@ def save_results_to_file(game_resuts, file_name):
             file.write(f"Reachability strategies : {reachability_strategies}\n")
             file.write(f"Final strategies        : {final_strategies}\n")
             file.write(f"Are equal               : {reachability_strategies == final_strategies}\n")
+            file.write(f"Message                 : {game['msg']}\n")
             file.write(f"Total time              : {total_time}\n")
 
 
@@ -35,7 +36,14 @@ def run_games(games_dict):
         logging.info(f"Running example: {name}")
         start = time.time()
         sgame = StochasticGame(**game)
-        final_strategies, reachability_strategies = sgame.solve()
+        msg = "Game solved"
+        try:
+            final_strategies, reachability_strategies = sgame.solve()
+        except ValueError as e:
+            logging.error(f"Error while solving the game: {e}")
+            reachability_strategies = None
+            final_strategies = None
+            msg = f"Error while solving the game: {e}"
         end = time.time()
         total_time = end - start
         logging.info(f"\nReachability strategies: {reachability_strategies}")
@@ -44,7 +52,8 @@ def run_games(games_dict):
         game_results[name] = {
             "reachability_strategies": reachability_strategies,
             "final_strategies": final_strategies,
-            "total_time": total_time
+            "total_time": total_time,
+            "msg": msg
         }
     return game_results
 

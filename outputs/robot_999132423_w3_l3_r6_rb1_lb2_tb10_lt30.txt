@@ -1,18 +1,21 @@
 ================================================================================================================================================================
 Running example         : game_a
-Reachability strategies : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Right'], ['Right'], ['Left'], ['Left'], ['Left', 'Right'], ['Left'], ['Right'], ['Left', 'Right'], None, None, None, None, None, None, None, None, None, None, None]
-Final strategies        : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Right'], ['Right'], ['Left'], ['Left'], ['Left', 'Right'], ['Left'], ['Right'], ['Left', 'Right'], None, None, None, None, None, None, None, None, None, None, None]
+Reachability strategies : None
+Final strategies        : None
 Are equal               : True
-Total time              : 0.002645730972290039
+Message                 : Error while solving the game: The game has no solution.
+Total time              : 0.0004584789276123047
 ================================================================================================================================================================
 Running example         : game_b
-Reachability strategies : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Right'], ['Right'], ['Left'], ['Left'], ['Left', 'Right'], ['Left'], ['Right'], ['Left', 'Right'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
-Final strategies        : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Right'], ['Right'], ['Left'], ['Left'], ['Left', 'Right'], ['Left'], ['Right'], ['Left', 'Right'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+Reachability strategies : None
+Final strategies        : None
 Are equal               : True
-Total time              : 0.007512092590332031
+Message                 : Error while solving the game: The game has no solution.
+Total time              : 0.0007109642028808594
 ================================================================================================================================================================
 Running example         : game_c
 Reachability strategies : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Right'], ['Right'], ['Left'], ['Left'], ['Left'], ['Left'], ['Right'], ['Left', 'Right'], ['Left'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
 Final strategies        : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Right'], ['Right'], ['Left'], ['Left'], ['Left'], ['Left'], ['Right'], ['Right'], ['Left'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
 Are equal               : False
-Total time              : 0.26279401779174805
+Message                 : game solved
+Total time              : 0.2590467929840088

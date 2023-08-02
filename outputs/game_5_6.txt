@@ -1,5 +1,0 @@
-================================================================================================================================================================
-Running example: game_5_6
-Reachability strategies: [None, ['beta'], None, None, None, None, None, None, None, None, None, None, None]
-Final strategies       : [None, ['beta'], None, None, None, None, None, None, None, None, None, None, None]
-Total time             : 0.0004913806915283203

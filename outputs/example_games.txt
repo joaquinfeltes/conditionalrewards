@@ -1,0 +1,49 @@
+================================================================================================================================================================
+Running example         : game_5_4
+Reachability strategies : [None, None, None, ['gamma'], None, None, None]
+Final strategies        : [None, None, None, ['gamma'], None, None, None]
+Are equal               : True
+Message                 : game solved
+Total time              : 0.00018644332885742188
+================================================================================================================================================================
+Running example         : game_5_5
+Reachability strategies : [['beta'], None, None, None, None, None, None, None]
+Final strategies        : [['beta'], None, None, None, None, None, None, None]
+Are equal               : True
+Message                 : game solved
+Total time              : 0.00013637542724609375
+================================================================================================================================================================
+Running example         : game_5_6
+Reachability strategies : [None, ['beta'], None, None, None, None, None, None, None, None, None, None, None]
+Final strategies        : [None, ['beta'], None, None, None, None, None, None, None, None, None, None, None]
+Are equal               : True
+Message                 : game solved
+Total time              : 0.0002560615539550781
+================================================================================================================================================================
+Running example         : game_5_6_reversed_players
+Reachability strategies : [['gamma', 'delta'], None, ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Final strategies        : [['delta'], None, ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Are equal               : False
+Message                 : game solved
+Total time              : 0.0002884864807128906
+================================================================================================================================================================
+Running example         : game_5_7
+Reachability strategies : [['beta'], None, None, None, None, None, None]
+Final strategies        : [['beta'], None, None, None, None, None, None]
+Are equal               : True
+Message                 : game solved
+Total time              : 0.00011849403381347656
+================================================================================================================================================================
+Running example         : game_5_6_all_player_one
+Reachability strategies : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Final strategies        : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Are equal               : True
+Message                 : game solved
+Total time              : 0.000244140625
+================================================================================================================================================================
+Running example         : game_5_6_all_player_one_same_probs
+Reachability strategies : [['gamma', 'delta'], ['alfa', 'beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Final strategies        : [['gamma'], ['alfa'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Are equal               : False
+Message                 : game solved
+Total time              : 0.00031876564025878906

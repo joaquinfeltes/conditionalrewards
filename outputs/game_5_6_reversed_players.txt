@@ -1,5 +1,0 @@
-================================================================================================================================================================
-Running example: game_5_6_reversed_players
-Reachability strategies: [['gamma', 'delta'], None, ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
-Final strategies       : [['delta'], None, ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
-Total time             : 0.0006382465362548828
