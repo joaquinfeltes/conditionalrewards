@@ -356,7 +356,6 @@ class Solver:
         self.prune_paths(reachability_strategies)
         self.prune_states()
 
-    # TODO [2] test this
     def prune_paths(self, reachability_strategies):
         for idx, state in enumerate(self.state_list):
             if state.player == PLAYER_1:
@@ -365,8 +364,6 @@ class Solver:
             if state.player == PROBABILISTIC:
                 state.prune_paths(self.state_list)
 
-    # TODO [2] test this
-    # Habria que agregar el ejemplo que estuvimos hablando por mail el 26 de julio
     def prune_states(self):
         finished = False
         not_reachable_states = []

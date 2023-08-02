@@ -5,7 +5,7 @@ from tad import (
     PLAYER_2,
     PROBABILISTIC,
     Solver,
-    debug_states
+    debug_states  # TODO [5] remove this
 )
 
 
@@ -297,7 +297,7 @@ def test_players_value_iteration_rewards_full(
 
 # ----------------------------------------Solver----------------------------------------#
 
-def test_solve_reachability_game_5_5(
+def test_solver_solve_reachability_game_5_5(
         state_list_game_5_5, transition_list_game_5_5, final_states_game_5_5):
     reachability_strategies = Solver(state_list_game_5_5).solve_reachability(
         transition_list_game_5_5, final_states_game_5_5)
@@ -305,7 +305,7 @@ def test_solve_reachability_game_5_5(
     assert reachability_strategies == expected_reachability_strategies
 
 
-def test_solve_reachability_game_5_5_same_reach(
+def test_solver_solve_reachability_game_5_5_same_reach(
         state_list_game_5_5_same_reach, transition_list_game_5_5_same_reach,
         final_states_game_5_5_same_reach):
     reachability_strategies = Solver(state_list_game_5_5_same_reach).solve_reachability(
@@ -314,7 +314,7 @@ def test_solve_reachability_game_5_5_same_reach(
     assert reachability_strategies == expected_reachability_strategies
 
 
-def test_solve_reachability_no_final_states(state_list_no_final):
+def test_solver_solve_reachability_no_final_states(state_list_no_final):
     final_states = []
     transition_list = [[(1, 1)], [(1, 1)], [(1, 2)]]
     with pytest.raises(ValueError) as e:
@@ -322,7 +322,7 @@ def test_solve_reachability_no_final_states(state_list_no_final):
     assert str(e.value) == "There must be at least one final state to solve reachability."
 
 
-def test_value_iteration_reachability(state_list_game_5_5):
+def test_solver_value_iteration_reachability(state_list_game_5_5):
     reachable_states = [state.idx for state in state_list_game_5_5 if state.idx not in [5, 7]]
 
     Solver(state_list_game_5_5).value_iteration_reachability(reachable_states)
@@ -332,75 +332,121 @@ def test_value_iteration_reachability(state_list_game_5_5):
         assert state.reach_probability == expected_prob
 
 
-def test_get_reachability_strategies(state_list_game_5_5):
+def test_solver_get_reachability_strategies(state_list_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
     reachability_strategies = Solver(state_list_game_5_5)._get_reachability_strategies()
     expected_reachability_strategies = [["beta"], None, None, None, None, None, None, None]
     assert reachability_strategies == expected_reachability_strategies
 
 
-def test_prune_stochastich_game(state_list_game_5_5):
+def test_solver_prune_stochastich_game(state_list_game_5_5):
+    init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
     reachability_strategies = [["beta"], None, None, None, None, None, None, None]
     Solver(state_list_game_5_5).prune_stochastich_game(reachability_strategies)
-    # expected_nodes_transitions = [[("beta", 2)], [(' ', 3)], [(' ', 4)], [(0.5, 5), (0.5, 6)],
-    #                               [(0.75, 6), (0.25, 7)], [(1, 5)], [(1, 6)], [(1, 7)]]
-    # After deleting states
     expected_nodes_transitions = [[("beta", 2)], [], [(' ', 4)], [],
                                   [(1, 6)], [], [(1, 6)], []]
     for state, expected_transitions in zip(state_list_game_5_5, expected_nodes_transitions):
         assert state.next_states == expected_transitions
 
 
-def test_prune_states(state_list_redistrib):
-    solver = Solver(state_list_redistrib)
-    expected_transitions = [[(1, 5)], [], [], [("gamma", 5)], [], [(1, 5)]]
+def test_solver_prune_stochastich_game_2(state_list_redistrib):
+    init_reachability(state_list_redistrib, [1/2, 0, 0, 1, 0, 1])
     reachability_strategies = [None, ["epsilon"], None, ["gamma"], None, None]
+    Solver(state_list_redistrib).prune_stochastich_game(reachability_strategies)
+    expected_nodes_transitions = [[(1, 5)], [], [], [("gamma", 5)], [], [(1, 5)]]
+    for state, expected_transitions in zip(state_list_redistrib, expected_nodes_transitions):
+        assert state.next_states == expected_transitions
+
+
+def test_solver_prune_paths(state_list_game_5_5):
+    init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
+    reachability_strategies = [["beta"], None, None, None, None, None, None, None]
+    solver = Solver(state_list_game_5_5)
+    solver.prune_paths(reachability_strategies)
+    expected_nodes_transitions = [[('beta', 2)], [(' ', 3)], [(' ', 4)],
+                                  [(1, 6)], [(1, 6)], [], [(1, 6)], []]
+    for state, expected_transitions in zip(state_list_game_5_5, expected_nodes_transitions):
+        assert state.next_states == expected_transitions
+
+
+def test_solver_prune_paths_2(state_list_redistrib):
+    init_reachability(state_list_redistrib, [1/2, 0, 0, 1, 0, 1])
+    reachability_strategies = [None, ["epsilon"], None, ["gamma"], None, None]
+    solver = Solver(state_list_redistrib)
+    solver.prune_paths(reachability_strategies)
+    expected_nodes_transitions = [[(1, 5)], [], [('beta', 3), ('alfa', 4)],
+                                  [("gamma", 5)], [], [(1, 5)]]
+    for state, expected_transitions in zip(state_list_redistrib, expected_nodes_transitions):
+        assert state.next_states == expected_transitions
+
+
+def test_solver_prune_states(state_list_redistrib):
+    init_reachability(state_list_redistrib, [1/2, 0, 0, 1, 0, 1])
+    reachability_strategies = [None, ["epsilon"], None, ["gamma"], None, None]
+    solver = Solver(state_list_redistrib)
     solver.prune_paths(reachability_strategies)
     solver.prune_states()
+    expected_transitions = [[(1, 5)], [], [], [("gamma", 5)], [], [(1, 5)]]
     for state, expected_next_states in zip(state_list_redistrib, expected_transitions):
         assert state.next_states == expected_next_states
 
 
-def test_solve_total_rewards(
+def test_solver_solve_total_rewards(
         state_list_game_5_5, transition_list_game_5_5, reachability_strategies_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
-    test_get_total_rewards_strategies = Solver(state_list_game_5_5).solve_total_rewards()
-    # TODO [4] alfa has more rewards, but taking into account the conditional rewards, beta is better
-    # but in this case we don't prune the states, so is not taking into account the conditional
-    # expected_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
+    solver = Solver(state_list_game_5_5)
+    total_rewards_strategies = solver.solve_total_rewards()
+    # alfa has more rewards, so if we don't prune the states, alfa is the best strategy
     expected_total_rewards_strategies = [["alfa"], None, None, None, None, None, None, None]
-    assert test_get_total_rewards_strategies == expected_total_rewards_strategies
+    assert total_rewards_strategies == expected_total_rewards_strategies
+
+    # but taking into account the conditional rewards,  beta is better
+    solver = Solver(state_list_game_5_5)
+    solver.prune_stochastich_game(reachability_strategies_game_5_5)
+    final_total_rewards_strategies = solver.solve_total_rewards()
+    expected_final_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
+    assert final_total_rewards_strategies == expected_final_total_rewards_strategies
 
 
-def test_solve_total_rewards_same_reach_alfa_better_rewards(
+def test_solver_solve_total_rewards_same_reach_alfa_better_rewards(
         state_list_game_5_5_same_reach, transition_list_game_5_5_same_reach,
         reachability_strategies_game_5_5_same_reach):
     init_reachability(state_list_game_5_5_same_reach, [1/2, 1/2, 1/2, 1/2, 1/2, 0, 1, 0])
-    test_get_total_rewards_strategies = Solver(state_list_game_5_5_same_reach).solve_total_rewards()
+    solver = Solver(state_list_game_5_5_same_reach)
+    total_rewards_strategies = solver.solve_total_rewards()
     expected_total_rewards_strategies = [["alfa"], None, None, None, None, None, None, None]
-    assert test_get_total_rewards_strategies == expected_total_rewards_strategies
+    assert total_rewards_strategies == expected_total_rewards_strategies
+
+    solver = Solver(state_list_game_5_5_same_reach)
+    solver.prune_stochastich_game(reachability_strategies_game_5_5_same_reach)
+    final_total_rewards_strategies = solver.solve_total_rewards()
+    expected_final_total_rewards_strategies = [["alfa"], None, None, None, None, None, None, None]
+    assert final_total_rewards_strategies == expected_final_total_rewards_strategies
 
 
-def test_value_iteration_total_rewards(state_list_game_5_5):
-
+def test_solver_value_iteration_total_rewards(state_list_game_5_5):
     Solver(state_list_game_5_5).value_iteration_total_rewards()
-
     expected_rewards = [2, 2, 5/3, 0, 0, 0, 0, 0]
     for state, expected_rew in zip(state_list_game_5_5, expected_rewards):
         assert state.expected_rewards == expected_rew
 
 
-def test_get_total_rewards_strategies(state_list_game_5_5):
+def test_solver_get_total_rewards_strategies(state_list_game_5_5, reachability_strategies_game_5_5):
     init_reachability(state_list_game_5_5, [3/4, 1/2, 3/4, 1/2, 3/4, 0, 1, 0])
-    total_rewards_strategies = Solver(state_list_game_5_5)._get_total_rewards_strategies()
-    # TODO [4] alfa has more rewards, but taking into account the conditional rewards, beta is better
-    # but in this case we don't prune the states, so is not taking into account the conditional
-    # expected_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
-
-    # also if I didnt do the value iteration, both strategies are the same,
-    # as the rewards are the same
+    solver = Solver(state_list_game_5_5)
+    solver.value_iteration_total_rewards()
+    total_rewards_strategies = solver._get_total_rewards_strategies()
+    # alfa has more rewards, so if we don't prune the states, alfa is the best strategy
     expected_total_rewards_strategies = [["alfa"], None, None, None, None, None, None, None]
     assert total_rewards_strategies == expected_total_rewards_strategies
+
+    # but taking into account the conditional rewards,  beta is better
+    solver = Solver(state_list_game_5_5)
+    solver.value_iteration_total_rewards()
+    solver.prune_stochastich_game(reachability_strategies_game_5_5)
+    final_total_rewards_strategies = solver._get_total_rewards_strategies()
+    expected_final_total_rewards_strategies = [["beta"], None, None, None, None, None, None, None]
+    assert final_total_rewards_strategies == expected_final_total_rewards_strategies
 
 
 # TODO [5] remove this
