@@ -1,0 +1,42 @@
+================================================================================================================================================================
+Running example         : game_a
+Reachability strategies : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Left', 'Right'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], None, None, None, None, None, None, None, None, None, None, None]
+Final strategies        : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], None, None, None, None, None, None, None, None, None, None, None]
+Are equal               : False
+Message                 : Game solved
+Total time              : 0.002673625946044922
+================================================================================================================================================================
+Running example         : game_a_no_prune
+Reachability strategies : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Left', 'Right'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], None, None, None, None, None, None, None, None, None, None, None]
+Final strategies        : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], None, None, None, None, None, None, None, None, None, None, None]
+Are equal               : False
+Message                 : Game solved
+Total time              : 0.002854585647583008
+================================================================================================================================================================
+Running example         : game_b
+Reachability strategies : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Right'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+Final strategies        : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Right'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+Are equal               : True
+Message                 : Game solved
+Total time              : 0.00876307487487793
+================================================================================================================================================================
+Running example         : game_b_no_prune
+Reachability strategies : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Right'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+Final strategies        : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Right'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+Are equal               : True
+Message                 : Game solved
+Total time              : 0.007506132125854492
+================================================================================================================================================================
+Running example         : game_c
+Reachability strategies : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Down'], ['Left'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down', 'Left'], ['Down'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+Final strategies        : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Down'], ['Left'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Down'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+Are equal               : False
+Message                 : Game solved
+Total time              : 0.01930546760559082
+================================================================================================================================================================
+Running example         : game_c_no_prune
+Reachability strategies : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Down'], ['Left'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down', 'Left'], ['Down'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+Final strategies        : [None, None, None, None, None, None, None, None, None, ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Down'], ['Left'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Left'], ['Etha'], ['Down'], ['Left'], ['Down'], ['Left'], ['Down'], ['Left'], ['Down'], ['Left'], ['Down'], None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
+Are equal               : False
+Message                 : Game solved
+Total time              : 0.021720409393310547
