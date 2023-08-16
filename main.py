@@ -1,4 +1,5 @@
 import argparse
+import copy
 import logging
 import time
 from tad import StochasticGame
@@ -32,29 +33,34 @@ def read_dict_from_file(file_name):
 def run_games(games_dict):
     game_results = {}
     for name, game in games_dict.items():
-        logging.info("\n" + "="*160 + "\n")
-        logging.info(f"Running example: {name}")
-        start = time.time()
-        sgame = StochasticGame(**game)
-        msg = "Game solved"
-        try:
-            final_strategies, reachability_strategies = sgame.solve()
-        except ValueError as e:
-            logging.error(f"Error while solving the game: {e}")
-            reachability_strategies = None
-            final_strategies = None
-            msg = f"Error while solving the game: {e}"
-        end = time.time()
-        total_time = end - start
-        logging.info(f"\nReachability strategies: {reachability_strategies}")
-        logging.info(f"Final strategies       : {final_strategies}")
-        logging.info(f"Total time             : {total_time}")
-        game_results[name] = {
-            "reachability_strategies": reachability_strategies,
-            "final_strategies": final_strategies,
-            "total_time": total_time,
-            "msg": msg
-        }
+        for prune_states in [True, False]:
+            logging.info("\n" + "="*160 + "\n")
+            msg = "Game solved"
+            name = name if prune_states else name + "_no_prune"
+            game["prune_states"] = prune_states
+            game_copy = copy.deepcopy(game)
+            logging.info(f"Running example: {name}")
+            start = time.time()
+            sgame = StochasticGame(**game_copy)
+            try:
+                final_strategies, reachability_strategies = sgame.solve()
+            except ValueError as e:
+                logging.error(f"Error while solving the game: {e}")
+                reachability_strategies = None
+                final_strategies = None
+                msg = f"Error while solving the game: {e}"
+            end = time.time()
+            total_time = end - start
+            logging.info(f"\nReachability strategies: {reachability_strategies}")
+            logging.info(f"Final strategies       : {final_strategies}")
+            logging.info(f"Total time             : {total_time}")
+
+            game_results[name] = {
+                "reachability_strategies": reachability_strategies,
+                "final_strategies": final_strategies,
+                "total_time": total_time,
+                "msg": msg
+            }
     return game_results
 
 

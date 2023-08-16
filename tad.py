@@ -13,12 +13,13 @@ class StochasticGame:
     """A stochastic game, with two players,
     a reward list, a set of final states and a transition matrix. All rewards are positive."""
 
-    def __init__(self, rewards, players, transition_list, final_states):
+    def __init__(self, rewards, players, transition_list, final_states, prune_states=True):
         self.rewards = rewards
         self.players = players
         self.transition_list = transition_list
         self.final_states = final_states
         self.num_states = len(self.players)
+        self.prune_states = prune_states
 
     def check_game(self):
         if len(self.transition_list) != self.num_states:
@@ -90,8 +91,11 @@ class StochasticGame:
             logging.info("Done!")
             return reachability_strategies, reachability_strategies
 
-        logging.info("Prunning states with no reachability ...")
-        solver.prune_stochastich_game(reachability_strategies)
+        if self.prune_states:
+            logging.info("Prunning states with no reachability ...")
+            solver.prune_stochastich_game(reachability_strategies)
+        else:
+            logging.info("Not prunning states.")
 
         logging.info("Solving total rewards ...")
         final_strategies = solver.solve_total_rewards()
