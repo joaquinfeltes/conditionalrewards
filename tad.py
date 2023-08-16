@@ -91,11 +91,16 @@ class StochasticGame:
             logging.info("Done!")
             return reachability_strategies, reachability_strategies
 
-        if self.prune_states:
-            logging.info("Prunning states with no reachability ...")
-            solver.prune_stochastich_game(reachability_strategies)
-        else:
-            logging.info("Not prunning states.")
+        solver.prune_stochastich_game(reachability_strategies, self.prune_states)        
+
+        # TODO: ask if the flag should be for pruning just the strategies for reachability for player one
+        # for or all the pruning.
+
+        # if self.prune_states:
+        #     logging.info("Prunning states with no reachability ...")
+        #     solver.prune_stochastich_game(reachability_strategies)
+        # else:
+        #     logging.info("Not prunning states.")
 
         logging.info("Solving total rewards ...")
         final_strategies = solver.solve_total_rewards()
@@ -338,14 +343,15 @@ class Solver:
                 strategies[state.idx] = state.get_best_strategies_reachability(self.state_list)
         return strategies
 
-    def prune_stochastich_game(self, reachability_strategies):
-        self.prune_paths(reachability_strategies)
+    def prune_stochastich_game(self, reachability_strategies, prune_paths_reachability_flag):
+        self.prune_paths(reachability_strategies, prune_paths_reachability_flag)
         self.prune_states()
 
-    def prune_paths(self, reachability_strategies):
+    def prune_paths(self, reachability_strategies, prune_paths_reachability_flag):
         for idx, state in enumerate(self.state_list):
             if state.player == PLAYER_1:
-                state.prune_paths_reachability(reachability_strategies[idx])
+                if prune_paths_reachability_flag:
+                    state.prune_paths_reachability(reachability_strategies[idx])
                 state.prune_paths(self.state_list)
             if state.player == PROBABILISTIC:
                 state.prune_paths(self.state_list)
