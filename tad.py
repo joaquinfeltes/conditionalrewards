@@ -9,6 +9,12 @@ PROBABILITY = 0
 NEXT_STATE_IDX = 1
 
 
+# TODO se podriiiia hacer un pruning cuando se inicializa,
+# borrando los nodos no alcanzables desde el inicial.
+# que deberían ser los que no tengan un camino hacia ellos.
+# Puede ser que deba ser iterativo, porque si borro un nodo,
+# puede que haya otro nuevo que no tenga camino hacia él.
+
 class StochasticGame:
     """A stochastic game, with two players,
     a reward list, a set of final states and a transition matrix. All rewards are positive."""
@@ -91,10 +97,10 @@ class StochasticGame:
             logging.info("Done!")
             return reachability_strategies, reachability_strategies
 
-        solver.prune_stochastich_game(reachability_strategies, self.prune_states)        
+        solver.prune_stochastich_game(reachability_strategies, self.prune_states)
 
-        # TODO: ask if the flag should be for pruning just the strategies for reachability for player one
-        # for or all the pruning.
+        # TODO: preguntar si la flag es para lo de alcanzabilidad del jugador uno (como está ahora)
+        # o si es para todo el pruning, como hice abajo
 
         # if self.prune_states:
         #     logging.info("Prunning states with no reachability ...")
