@@ -3,7 +3,7 @@ import random
 import math
 
 
-MOVE_SINTAX = ["<-", "<>", "->"]
+MOVE_SINTAX = ["<-", "<>", "->", "v"]
 TILE_SYNTAX = ["( )", "(X)"]
 
 FOUR_SPACES = "    "
@@ -12,10 +12,11 @@ TWELVE_SPACES = EIGHT_SPACES + FOUR_SPACES
 SIXTEEN_SPACES = TWELVE_SPACES + FOUR_SPACES
 
 
-def gen_rnd_board(seed, length, width, prob_loose_tile, max_reward=6):
+def gen_rnd_board(seed, length, width, prob_loose_tile, max_reward=6, force_down=False):
     moves = []
     rewards = []
     loose_tiles = []
+    move_max = 4 if force_down else 3
 
     # construct the board
     random.seed(seed)
@@ -24,7 +25,7 @@ def gen_rnd_board(seed, length, width, prob_loose_tile, max_reward=6):
         rewards.append([])
         loose_tiles.append([])
         for j in range(width):
-            moves[i].append(random.randrange(0, 3))
+            moves[i].append(random.randrange(0, move_max))
             rewards[i].append(math.floor(
                 -math.log(
                     1.0/2.0**(max_reward+1) +
@@ -34,12 +35,15 @@ def gen_rnd_board(seed, length, width, prob_loose_tile, max_reward=6):
     return moves, rewards, loose_tiles
 
 
-def player_two_transitions(length, width, offset_r, offset_y):
+def player_two_transitions(length, width, moves, offset_r, offset_y):
     transition_list = []
     for i in range(length):
         for j in range(width):
-            transition = [("Green", offset_r + i * width + j),  # To the player 1 down
-                          ("Yellow", offset_y + i * width + j)]  # To the player 1 left right
+            if moves[i][j] != 3:
+                transition = [("Green", offset_r + i * width + j),  # To the player 1 down
+                              ("Yellow", offset_y + i * width + j)]  # To the player 1 left right
+            if moves[i][j] == 3:
+                transition = [("Green", offset_r + i * width + j)]  # To the player 1 down
             transition_list.append(transition)
     return transition_list
 
@@ -90,6 +94,9 @@ def player_one_left_right_transitions(length, width, moves, offset_l, offset_r):
             elif moves[i][j] == 2:
                 # just right
                 transition_list.append([transition[1]])
+            elif moves[i][j] == 3:
+                # It should move down, so it shouldn't reach this state
+                transition_list.append([("Etha", 0)])
     return transition_list
 
 
@@ -149,7 +156,7 @@ def write_robot_A(my_file, length, width, moves, rewards, loose_tiles, prob_tile
     my_final_states = [winning_state]
 
     transition_list = player_two_transitions(
-        length, width, offset_r=(robot_down*n_tiles), offset_y=(robot_left_right*n_tiles))
+        length, width, moves, offset_r=(robot_down*n_tiles), offset_y=(robot_left_right*n_tiles))
 
     transition_list += player_one_down_transitions(
         length, width, offset=(prob*n_tiles), winning_state=winning_state)
@@ -265,7 +272,7 @@ def write_robot_B(my_file, length, width, moves, rewards, loose_tiles, prob_tile
 
     # 0 light
     transition_list = player_two_transitions(
-        length, width, offset_r=(robot_down*n_tiles), offset_y=(robot_left_right*n_tiles))
+        length, width, moves, offset_r=(robot_down*n_tiles), offset_y=(robot_left_right*n_tiles))
 
     # 1 robot down -> prob robot down break
     transition_list += player_one_down_transitions(
@@ -335,6 +342,9 @@ def player_one_down_left_right_transitions(length, width, moves, offset_d, offse
             elif moves[i][j] == 2:
                 # without left
                 transition_list.append([transition[0], transition[2]])
+            elif moves[i][j] == 3:
+                # just down
+                transition_list.append([transition[0]])
     return transition_list
 
 
@@ -389,7 +399,7 @@ def write_robot_C(my_file, length, width, moves, rewards, loose_tiles, prob_tile
 
     # 0 light
     transition_list = player_two_transitions(
-        length, width, offset_r=(light_red_break*n_tiles), offset_y=(light_yellow_break*n_tiles))
+        length, width, moves, offset_r=(light_red_break*n_tiles), offset_y=(light_yellow_break*n_tiles))
 
     # 1 robot down
     transition_list += player_one_down_transitions(
@@ -496,6 +506,7 @@ def init_parser():
                            " in the interval (0,1) (default = 0.1)\n"
     max_rewards_help = "  Sets the maximum reward to MAX_REWARD. MAX_REWARD must be a" + \
                        " positive integer (greater than 0) (default = 6)\n"
+    force_down_help = "  If added, there can be tiles that only allow the robot to go down.\n"
     parser.add_argument('--seed', '-s', type=int, required=False, default=0, help=seed_help)
     parser.add_argument('--width', '-w', type=int, required=False, default=3, help=width_help)
     parser.add_argument('--length', '-l', type=int, required=False, default=3, help=length_help)
@@ -509,6 +520,8 @@ def init_parser():
                         help=prob_loose_tile_help)
     parser.add_argument('--max_reward', '-m', type=int, required=False, default=6,
                         help=max_rewards_help)
+    parser.add_argument('--force_down', '-f', action='store_true', required=False,
+                        default=False, help=force_down_help)
     return parser
 
 
@@ -548,12 +561,13 @@ def main():
     prob_tile_break = parsed_args.prob_tile_break
     prob_robot_break = parsed_args.prob_robot_break
     prob_light_break = parsed_args.prob_light_break
+    force_down = parsed_args.force_down
 
     check_input(seed, width, length, prob_robot_break, prob_light_break, prob_loose_tile,
                 prob_tile_break, max_reward)
 
     moves, rewards, loose_tiles = gen_rnd_board(
-        seed, length, width, prob_loose_tile, max_reward)
+        seed, length, width, prob_loose_tile, max_reward, force_down)
 
     file_name = "inputs/robot_" + str(seed) + "_" + \
                 "w" + str(width) + "_" + \
@@ -562,7 +576,8 @@ def main():
                 "rb" + prob_to_str(prob_robot_break) + "_" + \
                 "lb" + prob_to_str(prob_light_break) + "_" + \
                 "tb" + prob_to_str(prob_tile_break) + "_" +  \
-                "lt" + prob_to_str(prob_loose_tile) + ".py"
+                "lt" + prob_to_str(prob_loose_tile) + \
+                ("_force_down" if force_down else "") + ".py"
 
     write_robots(file_name, length, width, moves, rewards, loose_tiles, prob_tile_break,
                  prob_robot_break, prob_light_break)
