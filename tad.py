@@ -1,5 +1,6 @@
 from reverse_dfs import reverse_dfs
 import logging
+import math
 
 PLAYER_1 = "Player 1"
 PLAYER_2 = "Player 2"
@@ -230,11 +231,12 @@ class PlayerOne(Node):
         max_rewards += self.reward
         return max_rewards
 
-    def get_best_strategies_reachability(self, state_list):
+    def get_best_strategies_reachability(self, state_list, floor):
         max_probability = 0
         best_strategies = []
         for action, next_state_idx in self.next_states:
-            next_state_reach_probability = state_list[next_state_idx].reach_probability
+            next_state_reach_probability = round(
+                state_list[next_state_idx].reach_probability, floor)
             if next_state_reach_probability > max_probability:
                 max_probability = next_state_reach_probability
                 best_strategies = [action]
@@ -256,15 +258,15 @@ class PlayerOne(Node):
     def remove_path(self, state_to_remove):
         self.next_states.remove(state_to_remove)
 
-    def get_best_strategies_total_rewards(self, state_list):
+    def get_best_strategies_total_rewards(self, state_list, floor):
         max_rewards = 0
         best_strategies = []
         for action, next_state_idx in self.next_states:
-            _next_state = state_list[next_state_idx]
-            if _next_state.expected_rewards > max_rewards:
-                max_rewards = _next_state.expected_rewards
+            next_state_expected_rewards = round(state_list[next_state_idx].expected_rewards, floor)
+            if next_state_expected_rewards > max_rewards:
+                max_rewards = next_state_expected_rewards
                 best_strategies = [action]
-            elif _next_state.expected_rewards == max_rewards:
+            elif next_state_expected_rewards == max_rewards:
                 best_strategies.append(action)
         return best_strategies
 
@@ -299,6 +301,7 @@ class Solver:
     def __init__(self, state_list, threshold=10**(-6)):
         self.state_list = state_list
         self.threshold = threshold
+        self.floor = abs(math.floor(math.log(threshold, 10)))
 
     def solve_reachability(self, transition_list, final_states):
         """This function calculates the probability to reach the final states for each state
@@ -346,7 +349,8 @@ class Solver:
         strategies = [None] * len(self.state_list)
         for state in self.state_list:
             if state.player == PLAYER_1:
-                strategies[state.idx] = state.get_best_strategies_reachability(self.state_list)
+                strategies[state.idx] = state.get_best_strategies_reachability(
+                    self.state_list, self.floor)
         return strategies
 
     def prune_stochastich_game(self, reachability_strategies, prune_paths_reachability_flag):
@@ -423,5 +427,6 @@ class Solver:
         strategies = [None] * len(self.state_list)
         for state in self.state_list:
             if state.player == PLAYER_1:
-                strategies[state.idx] = state.get_best_strategies_total_rewards(self.state_list)
+                strategies[state.idx] = state.get_best_strategies_total_rewards(
+                    self.state_list, self.floor)
         return strategies
