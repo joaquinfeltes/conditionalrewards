@@ -1,0 +1,9 @@
+================================================================================================================================================================
+Running example         : game_a
+Message                 : Error while solving the game: The game has no solution.
+Reachability strategies : None
+Final strategies        : None
+Are equal               : True
+Rewards                 : None
+Probabilities           : None
+Total time              : 0.0018718242645263672
