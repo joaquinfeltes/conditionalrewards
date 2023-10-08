@@ -13,11 +13,14 @@ def save_results_to_file(game_resuts, file_name):
             final_strategies = game["final_strategies"]
             total_time = game["total_time"]
             file.write("="*160)
-            file.write(f"\nRunning example         : {name}\n")
+            file.write("\n")
+            file.write(f"Running example         : {name}\n")
+            file.write(f"Message                 : {game['msg']}\n")
             file.write(f"Reachability strategies : {reachability_strategies}\n")
             file.write(f"Final strategies        : {final_strategies}\n")
             file.write(f"Are equal               : {reachability_strategies == final_strategies}\n")
-            file.write(f"Message                 : {game['msg']}\n")
+            file.write(f"Rewards                 : {game['rewards']}\n")
+            file.write(f"Probabilities           : {game['probabilities']}\n")
             file.write(f"Total time              : {total_time}\n")
 
 
@@ -29,13 +32,16 @@ def read_dict_from_file(file_name):
             raise ValueError("The file content is not a valid Python dictionary.")
         return dictionary
 
-
+# prune states es de si vamos a usar lo de prunear por reachability. Para probar.
 def run_games(games_dict):
     game_results = {}
     for name, game in games_dict.items():
         for prune_states in [True, False]:
+            reachability_strategies = None
+            final_strategies = None
+            rewards = None
+            probabilities = None
             logging.info("\n" + "="*160 + "\n")
-            msg = "Game solved"
             name = name if prune_states else name + "_no_prune"
             game["prune_states"] = prune_states
             game_copy = copy.deepcopy(game)
@@ -43,23 +49,29 @@ def run_games(games_dict):
             start = time.time()
             sgame = StochasticGame(**game_copy)
             try:
-                final_strategies, reachability_strategies = sgame.solve()
+                final_strategies, reachability_strategies, rewards, probabilities = sgame.solve()
+                msg = "Game solved"
             except ValueError as e:
                 logging.error(f"Error while solving the game: {e}")
-                reachability_strategies = None
-                final_strategies = None
                 msg = f"Error while solving the game: {e}"
             end = time.time()
             total_time = end - start
-            logging.info(f"\nReachability strategies: {reachability_strategies}")
+            logging.info("\n")
+            logging.info(f"Message                : {msg}")
+            logging.info(f"Reachability strategies: {reachability_strategies}")
             logging.info(f"Final strategies       : {final_strategies}")
+            logging.info(f"Are equal              : {reachability_strategies == final_strategies}")
+            logging.info(f"Rewards                : {rewards}")
+            logging.info(f"Probabilities          : {probabilities}")
             logging.info(f"Total time             : {total_time}")
 
             game_results[name] = {
                 "reachability_strategies": reachability_strategies,
                 "final_strategies": final_strategies,
                 "total_time": total_time,
-                "msg": msg
+                "msg": msg,
+                "rewards": rewards,
+                "probabilities": probabilities
             }
     return game_results
 
