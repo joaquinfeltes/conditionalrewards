@@ -91,12 +91,14 @@ class StochasticGame:
         logging.info("Solving reachability ...")
         reachability_strategies = solver.solve_reachability(
             self.transition_list, self.final_states)
+        probabilities = [state.reach_probability for state in state_list]
         logging.debug(f"Reachability strategies: {reachability_strategies}")
 
         if self.only_one_strategy(reachability_strategies):
             logging.info("Only one strategy left per node, no need to calculate total rewards.")
             logging.info("Done!")
-            return reachability_strategies, reachability_strategies
+            rewards = [state.reward for state in state_list]
+            return reachability_strategies, reachability_strategies, rewards, probabilities
 
         solver.prune_stochastich_game(reachability_strategies, self.prune_states)
 
@@ -111,9 +113,10 @@ class StochasticGame:
 
         logging.info("Solving total rewards ...")
         final_strategies = solver.solve_total_rewards()
+        rewards = [state.expected_rewards for state in state_list]
 
         logging.info("Done!")
-        return final_strategies, reachability_strategies
+        return final_strategies, reachability_strategies, rewards, probabilities
 
 
 class Node:
