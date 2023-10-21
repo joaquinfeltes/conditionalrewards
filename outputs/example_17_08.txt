@@ -1,14 +1,18 @@
 ================================================================================================================================================================
 Running example         : game_17_08
-Reachability strategies : [['alfa_1', 'alfa_2'], None, None, ['beta_1'], None, None, None, None, None, None]
-Final strategies        : [['alfa_1'], None, None, ['beta_1'], None, None, None, None, None, None]
-Are equal               : False
 Message                 : Game solved
-Total time              : 0.0018024444580078125
+Reachability strategies : [['alfa_1', 'alfa_2'], None, ['gamma_1'], ['beta_1'], None, None, None, None, None, None]
+Final strategies        : [['alfa_1'], None, ['gamma_2'], ['beta_1'], None, None, None, None, None, None]
+Are equal               : False
+Rewards                 : [18.789061452932497, 8.789061734876487, 7.499999980641189, 7.539062152623703, 10.438367010501988, 2.4999999935470627, 2.5390622457977803, 0, 0, 0]
+Probabilities           : [0.79999912948628, 0.7999994651411841, 0.7999988183974001, 0.8999997045993501, 0.79999928503072, 0.83999941220256, 0.8999998212576801, 0.77999990203376, 0, 1]
+Total time              : 0.0011141300201416016
 ================================================================================================================================================================
 Running example         : game_17_08_no_prune
-Reachability strategies : [['alfa_1', 'alfa_2'], None, None, ['beta_1'], None, None, None, None, None, None]
-Final strategies        : [['alfa_1'], None, None, ['beta_2'], None, None, None, None, None, None]
-Are equal               : False
 Message                 : Game solved
-Total time              : 0.0018265247344970703
+Reachability strategies : [['alfa_1', 'alfa_2'], None, ['gamma_1'], ['beta_1'], None, None, None, None, None, None]
+Final strategies        : [['alfa_1'], None, ['gamma_2'], ['beta_2'], None, None, None, None, None, None]
+Are equal               : False
+Rewards                 : [18.888888831555, 8.888888864315001, 7.142856004055, 8.749999992832, 9.444444383015, 2.1428568012165, 2.36111109575375, 3.7499999969280005, 0, 0]
+Probabilities           : [0.79999912948628, 0.7999994651411841, 0.7999988183974001, 0.8999997045993501, 0.79999928503072, 0.83999941220256, 0.8999998212576801, 0.77999990203376, 0, 1]
+Total time              : 0.0008831024169921875

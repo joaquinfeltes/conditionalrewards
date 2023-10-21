@@ -1,49 +1,126 @@
 ================================================================================================================================================================
 Running example         : game_5_4
-Reachability strategies : [None, None, None, ['gamma'], None, None, None]
-Final strategies        : [None, None, None, ['gamma'], None, None, None]
-Are equal               : True
-Message                 : game solved
-Total time              : 0.00018644332885742188
+Message                 : Game solved
+Reachability strategies : [['alfa'], None, None, ['gamma'], None, None, None]
+Final strategies        : [['beta'], None, None, ['gamma'], None, None, None]
+Are equal               : False
+Rewards                 : [1.0, 1.0, 100.0, 1, 0, 0, 0]
+Probabilities           : [0.5, 0.75, 0.5, 1, 0, 1, 0]
+Total time              : 0.0002548694610595703
+================================================================================================================================================================
+Running example         : game_5_4_no_prune
+Message                 : Game solved
+Reachability strategies : [['alfa'], None, None, ['gamma'], None, None, None]
+Final strategies        : [['beta'], None, None, ['delta', 'gamma'], None, None, None]
+Are equal               : False
+Rewards                 : [0.75, 0.75, 100.0, 1, 0, 0, 0]
+Probabilities           : [0.5, 0.75, 0.5, 1, 0, 1, 0]
+Total time              : 0.00015926361083984375
 ================================================================================================================================================================
 Running example         : game_5_5
-Reachability strategies : [['beta'], None, None, None, None, None, None, None]
-Final strategies        : [['beta'], None, None, None, None, None, None, None]
-Are equal               : True
-Message                 : game solved
-Total time              : 0.00013637542724609375
+Message                 : Game solved
+Reachability strategies : [['beta'], [' '], [' '], None, None, None, None, None]
+Final strategies        : [['beta'], [], [' '], None, None, None, None, None]
+Are equal               : False
+Rewards                 : [1.6666666666666667, 0, 1.6666666666666667, 0, 0.0, 0, 0, 0]
+Probabilities           : [0.75, 0.5, 0.75, 0.5, 0.75, 0, 1, 0]
+Total time              : 0.0001819133758544922
+================================================================================================================================================================
+Running example         : game_5_5_no_prune
+Message                 : Game solved
+Reachability strategies : [['beta'], [' '], [' '], None, None, None, None, None]
+Final strategies        : [['alfa'], [' '], [' '], None, None, None, None, None]
+Are equal               : False
+Rewards                 : [2, 2.0, 1.6666666666666667, 0.0, 0.0, 0, 0, 0]
+Probabilities           : [0.75, 0.5, 0.75, 0.5, 0.75, 0, 1, 0]
+Total time              : 0.00015306472778320312
 ================================================================================================================================================================
 Running example         : game_5_6
-Reachability strategies : [None, ['beta'], None, None, None, None, None, None, None, None, None, None, None]
-Final strategies        : [None, ['beta'], None, None, None, None, None, None, None, None, None, None, None]
-Are equal               : True
-Message                 : game solved
-Total time              : 0.0002560615539550781
+Message                 : Game solved
+Reachability strategies : [['delta'], ['beta'], [' '], [' '], [' '], None, None, None, None, None, None, None, None]
+Final strategies        : [['gamma'], ['beta'], [], [' '], [' '], None, None, None, None, None, None, None, None]
+Are equal               : False
+Rewards                 : [1.6666666666666667, 1.6666666666666667, 0, 1.6666666666666667, 1.8333333333333333, 0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Probabilities           : [0.5, 0.75, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1, 0]
+Total time              : 0.0002129077911376953
+================================================================================================================================================================
+Running example         : game_5_6_no_prune
+Message                 : Game solved
+Reachability strategies : [['delta'], ['beta'], [' '], [' '], [' '], None, None, None, None, None, None, None, None]
+Final strategies        : [['delta'], ['alfa'], [' '], [' '], [' '], None, None, None, None, None, None, None, None]
+Are equal               : False
+Rewards                 : [1.8333333333333333, 2.0, 2.0, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Probabilities           : [0.5, 0.75, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1, 0]
+Total time              : 0.00021576881408691406
 ================================================================================================================================================================
 Running example         : game_5_6_reversed_players
-Reachability strategies : [['gamma', 'delta'], None, ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
-Final strategies        : [['delta'], None, ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Message                 : Game solved
+Reachability strategies : [['gamma', 'delta'], ['alfa'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Final strategies        : [['delta'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
 Are equal               : False
-Message                 : game solved
-Total time              : 0.0002884864807128906
+Rewards                 : [1.8333333333333333, 1.6666666666666667, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Probabilities           : [0.5, 0.5, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1, 0]
+Total time              : 0.00020885467529296875
+================================================================================================================================================================
+Running example         : game_5_6_reversed_players_no_prune
+Message                 : Game solved
+Reachability strategies : [['gamma', 'delta'], ['alfa'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Final strategies        : [['delta'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Are equal               : False
+Rewards                 : [1.8333333333333333, 1.6666666666666667, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Probabilities           : [0.5, 0.5, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1, 0]
+Total time              : 0.00018405914306640625
 ================================================================================================================================================================
 Running example         : game_5_7
+Message                 : Game solved
 Reachability strategies : [['beta'], None, None, None, None, None, None]
 Final strategies        : [['beta'], None, None, None, None, None, None]
 Are equal               : True
-Message                 : game solved
-Total time              : 0.00011849403381347656
+Rewards                 : [1.0, 0, 1.0, 0, 0, 1, 0]
+Probabilities           : [0.99, 0.01, 0.99, 1, 0, 1, 1]
+Total time              : 0.00011205673217773438
+================================================================================================================================================================
+Running example         : game_5_7_no_prune
+Message                 : Game solved
+Reachability strategies : [['beta'], None, None, None, None, None, None]
+Final strategies        : [['alfa'], None, None, None, None, None, None]
+Are equal               : False
+Rewards                 : [1.0000000000000001e+23, 1.0000000000000001e+23, 0.99, 10000000000000000000000000, 0, 1, 0]
+Probabilities           : [0.99, 0.01, 0.99, 1, 0, 1, 1]
+Total time              : 0.00011706352233886719
 ================================================================================================================================================================
 Running example         : game_5_6_all_player_one
+Message                 : Game solved
 Reachability strategies : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
 Final strategies        : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
 Are equal               : True
-Message                 : game solved
-Total time              : 0.000244140625
+Rewards                 : [1.6666666666666667, 1.6666666666666667, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Probabilities           : [0.75, 0.75, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1, 0]
+Total time              : 0.00021219253540039062
+================================================================================================================================================================
+Running example         : game_5_6_all_player_one_no_prune
+Message                 : Game solved
+Reachability strategies : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Final strategies        : [['gamma'], ['alfa'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Are equal               : False
+Rewards                 : [2, 2, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Probabilities           : [0.75, 0.75, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1, 0]
+Total time              : 0.00018525123596191406
 ================================================================================================================================================================
 Running example         : game_5_6_all_player_one_same_probs
+Message                 : Game solved
 Reachability strategies : [['gamma', 'delta'], ['alfa', 'beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
 Final strategies        : [['gamma'], ['alfa'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
 Are equal               : False
-Message                 : game solved
-Total time              : 0.00031876564025878906
+Rewards                 : [2, 2, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Probabilities           : [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0]
+Total time              : 0.00019884109497070312
+================================================================================================================================================================
+Running example         : game_5_6_all_player_one_same_probs_no_prune
+Message                 : Game solved
+Reachability strategies : [['gamma', 'delta'], ['alfa', 'beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Final strategies        : [['gamma'], ['alfa'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Are equal               : False
+Rewards                 : [2, 2, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Probabilities           : [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0]
+Total time              : 0.00018525123596191406
