@@ -10,12 +10,6 @@ PROBABILITY = 0
 NEXT_STATE_IDX = 1
 
 
-# TODO se podriiiia hacer un pruning cuando se inicializa,
-# borrando los nodos no alcanzables desde el inicial.
-# que deberían ser los que no tengan un camino hacia ellos.
-# Puede ser que deba ser iterativo, porque si borro un nodo,
-# puede que haya otro nuevo que no tenga camino hacia él.
-
 class StochasticGame:
     """A stochastic game, with two players,
     a reward list, a set of final states and a transition matrix. All rewards are positive."""
@@ -90,26 +84,15 @@ class StochasticGame:
 
         logging.info("Solving reachability ...")
         reachability_strategies = solver.solve_reachability(
-            self.transition_list, self.final_states)
+            self.transition_list, self.final_states, self.prune_states)
         probabilities = [state.reach_probability for state in state_list]
         logging.debug(f"Reachability strategies: {reachability_strategies}")
 
-        if self.only_one_strategy(reachability_strategies):
-            logging.info("Only one strategy left per node, no need to calculate total rewards.")
-            logging.info("Done!")
-            rewards = [state.reward for state in state_list]
-            return reachability_strategies, reachability_strategies, rewards, probabilities
-
-        solver.prune_stochastich_game(reachability_strategies, self.prune_states)
-
-        # TODO: preguntar si la flag es para lo de alcanzabilidad del jugador uno (como está ahora)
-        # o si es para todo el pruning, como hice abajo
-
-        # if self.prune_states:
-        #     logging.info("Prunning states with no reachability ...")
-        #     solver.prune_stochastich_game(reachability_strategies)
-        # else:
-        #     logging.info("Not prunning states.")
+        if self.prune_states:
+            logging.info("Prunning states with no reachability ...")
+            solver.prune_stochastich_game(reachability_strategies)
+        else:
+            logging.info("Not prunning states.")
 
         logging.info("Solving total rewards ...")
         final_strategies = solver.solve_total_rewards()
@@ -298,6 +281,33 @@ class PlayerTwo(Node):
                 min_rewards = next_state_exp_rewards
         min_rewards += self.reward
         return min_rewards
+    
+    def get_worst_strategies_reachability(self, state_list, floor):
+        min_reach_prob = 1
+        worst_strategies = []
+        for action, next_state_idx in self.next_states:
+            next_state_reach_probability = round(
+                state_list[next_state_idx].reach_probability, floor)
+            if next_state_reach_probability < min_reach_prob:
+                min_reach_prob = next_state_reach_probability
+                worst_strategies = [action]
+            elif next_state_reach_probability == min_reach_prob:
+                worst_strategies.append(action)
+        return worst_strategies
+    
+    def get_worst_strategies_total_rewards(self, state_list, floor):
+        if len(self.next_states) == 0:
+            return []
+        min_rewards = round(state_list[self.next_states[0][NEXT_STATE_IDX]].expected_rewards, floor)
+        worst_strategies = []
+        for action, next_state_idx in self.next_states:
+            next_state_expected_rewards = round(state_list[next_state_idx].expected_rewards, floor)
+            if next_state_expected_rewards < min_rewards:
+                min_rewards = next_state_expected_rewards
+                worst_strategies = [action]
+            elif next_state_expected_rewards == min_rewards:
+                worst_strategies.append(action)
+        return worst_strategies
 
 
 class Solver:
@@ -306,7 +316,7 @@ class Solver:
         self.threshold = threshold
         self.floor = abs(math.floor(math.log(threshold, 10)))
 
-    def solve_reachability(self, transition_list, final_states):
+    def solve_reachability(self, transition_list, final_states, prune_states):
         """This function calculates the probability to reach the final states for each state
             and returns a list of strategies for reachability for each state of player 1"""
 
@@ -314,11 +324,11 @@ class Solver:
             raise ValueError("There must be at least one final state to solve reachability.")
 
         reachable_states = reverse_dfs(transition_list, final_states)
-        self.value_iteration_reachability(reachable_states)
+        self.value_iteration_reachability(reachable_states, prune_states)
         reachability_strategies = self._get_reachability_strategies()
         return reachability_strategies
 
-    def value_iteration_reachability(self, reachable_states):
+    def value_iteration_reachability(self, reachable_states, prune_states):
         diff = 1
         logging.debug("Value iteration for reachability:")
         logging.debug("-"*80)
@@ -341,30 +351,33 @@ class Solver:
         for state in self.state_list:
             logging.debug(f"{state.idx} {state.reach_probability}")
         logging.debug("-"*80)
-        if self.state_list[0].reach_probability == 0:
+        if self.state_list[0].reach_probability == 0 and prune_states:
             raise ValueError("The game has no solution.")
 
     def _get_reachability_strategies(self):
         """This function returns a list of strategies that maximize
         reachability for each state of player 1"""
-        # strategies will be a list of lists, and it will have None if the player is not PLAYER_1
+        # strategies will be a list of lists, and it will have None if the player is not PLAYER_1 or PLAYER_2
         # in the case of PLAYER_1, it will have a list of the best actions for that state
+        # in the case of PLAYER_2, it will have a list of the worst actions for that state
         strategies = [None] * len(self.state_list)
         for state in self.state_list:
             if state.player == PLAYER_1:
                 strategies[state.idx] = state.get_best_strategies_reachability(
                     self.state_list, self.floor)
+            elif state.player == PLAYER_2:
+                strategies[state.idx] = state.get_worst_strategies_reachability(
+                    self.state_list, self.floor)
         return strategies
 
-    def prune_stochastich_game(self, reachability_strategies, prune_paths_reachability_flag):
-        self.prune_paths(reachability_strategies, prune_paths_reachability_flag)
+    def prune_stochastich_game(self, reachability_strategies):
+        self.prune_paths(reachability_strategies)
         self.prune_states()
 
-    def prune_paths(self, reachability_strategies, prune_paths_reachability_flag):
+    def prune_paths(self, reachability_strategies):
         for idx, state in enumerate(self.state_list):
             if state.player == PLAYER_1:
-                if prune_paths_reachability_flag:
-                    state.prune_paths_reachability(reachability_strategies[idx])
+                state.prune_paths_reachability(reachability_strategies[idx])
                 state.prune_paths(self.state_list)
             if state.player == PROBABILISTIC:
                 state.prune_paths(self.state_list)
@@ -431,5 +444,8 @@ class Solver:
         for state in self.state_list:
             if state.player == PLAYER_1:
                 strategies[state.idx] = state.get_best_strategies_total_rewards(
+                    self.state_list, self.floor)
+            elif state.player == PLAYER_2:
+                strategies[state.idx] = state.get_worst_strategies_total_rewards(
                     self.state_list, self.floor)
         return strategies
