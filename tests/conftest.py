@@ -313,7 +313,7 @@ def node_s1():
         idx=1,
         reward=2,
         next_states=[
-            (" ", 3),
+            ("x", 3),
         ],
         num_states=8,
         is_final_node=False,
@@ -327,7 +327,7 @@ def node_s2():
         idx=2,
         reward=5/3,
         next_states=[
-            (" ", 4),
+            ("x", 4),
         ],
         num_states=8,
         is_final_node=False,
@@ -420,7 +420,7 @@ def state_list_game_5_5(
 @pytest.fixture
 def transition_list_game_5_5():
     return [
-        [("alfa", 1), ("beta", 2)], [(" ", 3)], [(" ", 4)],
+        [("alfa", 1), ("beta", 2)], [("x", 3)], [("x", 4)],
         [(0.5, 5), (0.5, 6)], [(0.75, 6), (0.25, 7)],
         [(1, 5)], [(1, 6)], [(1, 7)]
     ]
@@ -477,7 +477,7 @@ def state_list_game_5_5_same_reach(
 @pytest.fixture
 def transition_list_game_5_5_same_reach():
     return [
-        [("alfa", 1), ("beta", 2)], [(" ", 3)], [(" ", 4)],
+        [("alfa", 1), ("beta", 2)], [("x", 3)], [("x", 4)],
         [(0.5, 5), (0.5, 6)], [(0.5, 6), (0.5, 7)],
         [(1, 5)], [(1, 6)], [(1, 7)]
         ]
