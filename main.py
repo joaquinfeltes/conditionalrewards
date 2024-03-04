@@ -32,8 +32,14 @@ def read_dict_from_file(file_name):
             raise ValueError("The file content is not a valid Python dictionary.")
         return dictionary
 
-# prune states es de si vamos a usar lo de prunear por reachability. Para probar.
+
 def run_games(games_dict):
+    """
+        Run the solver for the stochastic games in the input dictionary.
+        prune_states is a boolean that indicates if the states should be pruned or not.
+        If is False, we check the expected rewards.
+        If is True, we check the expected rewards conditioned on the reachability objectives.
+    """
     game_results = {}
     for name, game in games_dict.items():
         for prune_states in [True, False]:
