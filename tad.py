@@ -415,12 +415,12 @@ class Solver:
         if not final_states:
             raise ValueError("There must be at least one final state to solve reachability.")
 
-        reachable_states = reverse_dfs(transition_list, final_states)
-        self.value_iteration_reachability(reachable_states, prune_states)
+        states_reaching_final = reverse_dfs(transition_list, final_states)
+        self.value_iteration_reachability(states_reaching_final, prune_states)
         reachability_strategies = self._get_reachability_strategies()
         return reachability_strategies
 
-    def value_iteration_reachability(self, reachable_states, prune_states):
+    def value_iteration_reachability(self, states_reaching_final, prune_states):
         """
             Calculates the probability to reach the final states for each state.
             It uses the value iteration algorithm to calculate the reachability probabilities.
@@ -435,13 +435,13 @@ class Solver:
         while diff > self.threshold:
             logging.debug(f"iteration {i}")
             i += 1
-            for state_idx in reachable_states:
+            for state_idx in states_reaching_final:
                 state = self.state_list[state_idx]
                 state.reach_probability_next = state.value_iteration_reach(self.state_list)
             diff = max(
                 [abs(self.state_list[state_idx].reach_probability_next -
-                 self.state_list[state_idx].reach_probability) for state_idx in reachable_states])
-            for state_idx in reachable_states:
+                 self.state_list[state_idx].reach_probability) for state_idx in states_reaching_final])
+            for state_idx in states_reaching_final:
                 state = self.state_list[state_idx]
                 logging.debug(f"{state.idx} {state.reach_probability}")
                 state.reach_probability = state.reach_probability_next
