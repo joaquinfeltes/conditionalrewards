@@ -435,21 +435,24 @@ class Solver:
         while diff > self.threshold:
             logging.debug(f"iteration {i}")
             i += 1
+            max_diff = 0
             for state_idx in states_reaching_final:
                 state = self.state_list[state_idx]
                 state.reach_probability_next = state.value_iteration_reach(self.state_list)
-            diff = max(
-                [abs(self.state_list[state_idx].reach_probability_next -
-                 self.state_list[state_idx].reach_probability) for state_idx in states_reaching_final])
-            for state_idx in states_reaching_final:
+                current_diff = abs(self.state_list[state_idx].reach_probability_next - self.state_list[state_idx].reach_probability)
+                if current_diff > max_diff:
+                    max_diff = current_diff
                 state = self.state_list[state_idx]
                 logging.debug(f"{state.idx} {state.reach_probability}")
                 state.reach_probability = state.reach_probability_next
+            diff = max_diff
+
             logging.debug("-"*80)
         logging.debug(f"iteration {i}")
         for state in self.state_list:
             logging.debug(f"{state.idx} {state.reach_probability}")
         logging.debug("-"*80)
+
         if self.state_list[0].reach_probability == 0 and prune_states:
             raise ValueError("The game has no solution. The initial state has a reach probability of 0.")
 
@@ -496,7 +499,6 @@ class Solver:
             don't know if player 2 is going to choose the strategy that
             minimizes reachability or not.
         """
-
         finished = False
         not_reachable_states = []
 
@@ -542,17 +544,16 @@ class Solver:
         while diff > self.threshold:
             logging.debug(f"iteration {i}")
             i += 1
+            max_diff = 0
             for state in self.state_list:
                 state.expected_rewards_next = state.value_iteration_rewards(self.state_list)
-
-            diff = max([
-                abs(state.expected_rewards_next - state.expected_rewards)
-                for state in self.state_list])
-
-            for state in self.state_list:
+                current_diff = abs(state.expected_rewards_next - state.expected_rewards)
+                if current_diff > max_diff:
+                        max_diff = current_diff
                 logging.debug(f"{state.idx} {state.expected_rewards}")
                 state.expected_rewards = state.expected_rewards_next
             logging.debug("-"*80)
+            diff = max_diff
 
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             logging.debug(f"iteration {i}")
