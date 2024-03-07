@@ -221,8 +221,8 @@ class ProbabilisticNode(Node):
 
     def prune_paths(self, state_list):
         """
-            Removes the next states that have a probability of
-            zero of reaching the final states.
+            Removes the next states that have
+            zero probability of reaching the final states.
         """
         for _next_state in self.next_states:
             next_state = state_list[_next_state[NEXT_STATE_IDX]]
@@ -301,7 +301,7 @@ class PlayerOne(Node):
 
     def prune_paths(self, state_list):
         """
-            Removes the next states that have a probability of zero of reaching
+            Removes the next states that have zero probability of reaching
             the final states.
         """
         for _next_state in self.next_states:
