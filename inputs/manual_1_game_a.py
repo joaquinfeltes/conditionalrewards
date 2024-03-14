@@ -5,11 +5,6 @@
 #   [5|->( )] [2|->( )] [0|<-( )] [0|<>( )]
 #   [2|<>( )] [2|<>( )] [0|->(X)] [0|->( )]
 
-#LOS UNICOS ESTADOS CON REACHABILITY SON LOS ULTIMOS QUE TIENEN LA OPCION DE IR ABAJO
-# 28, 29, 30, 31.
-# Y LOS QUE VAN A ESTOS SON LOS "GREEN" DEL JUGADOR 2 DE ESA ULTIMA FILA.
-# LO QUE PASA ES QUE AL MINIMIZAR LA ALCANZABILIDAD, 
-# NUNCA ELIGE GREEN (EN NUESTRO ALGORITMO)
 
 {
  'game_a': {'rewards': [0, 5, 5, 3, 1, 0, 0, 4, 5, 2, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
