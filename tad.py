@@ -53,6 +53,15 @@ class StochasticGame:
             if player not in [PLAYER_1, PLAYER_2, PROBABILISTIC]:
                 raise ValueError(f"Player must be {PLAYER_1}, {PLAYER_2} or {PROBABILISTIC}.")
 
+    def count_transitions(self):
+        """
+            Count the number of transitions in the game.
+        """
+        transitions = 0
+        for state_transitions in self.transition_list:
+            transitions += len(state_transitions)
+        return transitions
+
     def init_states(self):
         """
             This function initializes the states of the game.
@@ -106,7 +115,7 @@ class StochasticGame:
         solver = Solver(threshold=10**(-6), state_list=state_list)
 
         logging.info("Solving reachability ...")
-        reachability_strategies = solver.solve_reachability(
+        reachability_strategies, n_iterations_reach = solver.solve_reachability(
             self.transition_list, self.final_states, self.prune_states)
         probabilities = [state.reach_probability for state in state_list]
         logging.debug(f"Reachability strategies: {reachability_strategies}")
@@ -118,11 +127,11 @@ class StochasticGame:
             logging.info("Not prunning states.")
 
         logging.info("Solving total rewards ...")
-        final_strategies = solver.solve_total_rewards()
+        final_strategies, n_iterations_rew = solver.solve_total_rewards()
         rewards = [state.expected_rewards for state in state_list]
 
         logging.info("Done!")
-        return final_strategies, reachability_strategies, rewards, probabilities
+        return final_strategies, reachability_strategies, rewards, probabilities, n_iterations_reach, n_iterations_rew
 
 
 class Node:
@@ -416,9 +425,9 @@ class Solver:
             raise ValueError("There must be at least one final state to solve reachability.")
 
         states_reaching_final = reverse_dfs(transition_list, final_states)
-        self.value_iteration_reachability(states_reaching_final, prune_states)
+        n_iterations_reach = self.value_iteration_reachability(states_reaching_final, prune_states)
         reachability_strategies = self._get_reachability_strategies()
-        return reachability_strategies
+        return reachability_strategies, n_iterations_reach
 
     def value_iteration_reachability(self, states_reaching_final, prune_states):
         """
@@ -455,6 +464,7 @@ class Solver:
 
         if self.state_list[0].reach_probability == 0 and prune_states:
             raise ValueError("The game has no solution. The initial state has a reach probability of 0.")
+        return i
 
     def _get_reachability_strategies(self):
         """
@@ -526,9 +536,9 @@ class Solver:
             and it has to return a list of strategies that maximize
             total rewards for those strategies.
         """
-        self.value_iteration_total_rewards()
+        n_iterations_rew = self.value_iteration_total_rewards()
         total_rewards_strategies = self._get_total_rewards_strategies()
-        return total_rewards_strategies
+        return total_rewards_strategies, n_iterations_rew
 
     def value_iteration_total_rewards(self):
         """ 
@@ -560,6 +570,7 @@ class Solver:
             for state in self.state_list:
                 logging.debug(f"{state.idx} {state.expected_rewards}")
             logging.debug("-"*80)
+        return i
 
     def _get_total_rewards_strategies(self):
         """

@@ -16,11 +16,15 @@ def save_results_to_file(game_resuts, file_name):
             file.write("\n")
             file.write(f"Running example         : {name}\n")
             file.write(f"Message                 : {game['msg']}\n")
+            file.write(f"number of states        : {game['n_states']}\n")
+            file.write(f"number of transitions   : {game['n_transitions']}\n")
+            file.write(f"n iterations reach      : {game['n_iterations_reach']}\n")
+            file.write(f"n iterations rew        : {game['n_iterations_rew']}\n")
             file.write(f"Reachability strategies : {reachability_strategies}\n")
             file.write(f"Final strategies        : {final_strategies}\n")
             file.write(f"Are equal               : {reachability_strategies == final_strategies}\n")
-            file.write(f"Rewards                 : {game['rewards']}\n")
             file.write(f"Probabilities           : {game['probabilities']}\n")
+            file.write(f"Rewards                 : {game['rewards']}\n")
             file.write(f"Total time              : {total_time}\n")
 
 
@@ -42,43 +46,50 @@ def run_games(games_dict):
     """
     game_results = {}
     for name, game in games_dict.items():
-        for prune_states in [True, False]:
-            reachability_strategies = None
-            final_strategies = None
-            rewards = None
-            probabilities = None
-            logging.info("\n" + "="*160 + "\n")
-            name = name if prune_states else name + "_no_prune"
-            game["prune_states"] = prune_states
-            game_copy = copy.deepcopy(game)
-            logging.info(f"Running example: {name}")
-            start = time.time()
-            sgame = StochasticGame(**game_copy)
-            try:
-                final_strategies, reachability_strategies, rewards, probabilities = sgame.solve()
-                msg = "Game solved"
-            except ValueError as e:
-                logging.error(f"Error while solving the game: {e}")
-                msg = f"Error while solving the game: {e}"
-            end = time.time()
-            total_time = end - start
-            logging.info("\n")
-            logging.info(f"Message                : {msg}")
-            logging.info(f"Reachability strategies: {reachability_strategies}")
-            logging.info(f"Final strategies       : {final_strategies}")
-            logging.info(f"Are equal              : {reachability_strategies == final_strategies}")
-            logging.info(f"Rewards                : {rewards}")
-            logging.info(f"Probabilities          : {probabilities}")
-            logging.info(f"Total time             : {total_time}")
+        # for prune_states in [True, False]:
+        reachability_strategies = None
+        final_strategies = None
+        rewards = None
+        probabilities = None
+        iterations_reach = 0 
+        iterations_rew = 0
+        logging.info("\n" + "="*160 + "\n")
+        # name = name if prune_states else name + "_no_prune"
+        # game["prune_states"] = prune_states
+        game_copy = copy.deepcopy(game)
+        logging.info(f"Running example: {name}")
+        start = time.time()
+        sgame = StochasticGame(**game_copy)
+        n_transitions = sgame.count_transitions()
+        try:
+            final_strategies, reachability_strategies, rewards, probabilities, iterations_reach, iterations_rew = sgame.solve()
+            msg = "Game solved"
+        except ValueError as e:
+            logging.error(f"Error while solving the game: {e}")
+            msg = f"Error while solving the game: {e}"
+        end = time.time()
+        total_time = end - start
+        logging.info("\n")
+        logging.info(f"Message                : {msg}")
+        logging.info(f"Reachability strategies: {reachability_strategies}")
+        logging.info(f"Final strategies       : {final_strategies}")
+        logging.info(f"Are equal              : {reachability_strategies == final_strategies}")
+        logging.info(f"Rewards                : {rewards}")
+        logging.info(f"Probabilities          : {probabilities}")
+        logging.info(f"Total time             : {total_time}")
 
-            game_results[name] = {
-                "reachability_strategies": reachability_strategies,
-                "final_strategies": final_strategies,
-                "total_time": total_time,
-                "msg": msg,
-                "rewards": rewards,
-                "probabilities": probabilities
-            }
+        game_results[name] = {
+            "n_states" : sgame.num_states,
+            "n_transitions": n_transitions,
+            "n_iterations_reach": iterations_reach,
+            "n_iterations_rew": iterations_rew,
+            "reachability_strategies": reachability_strategies,
+            "final_strategies": final_strategies,
+            "total_time": total_time,
+            "msg": msg,
+            "rewards": rewards,
+            "probabilities": probabilities,
+        }
     return game_results
 
 
