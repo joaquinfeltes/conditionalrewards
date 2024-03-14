@@ -1,0 +1,117 @@
+================================================================================================================================================================
+Running example         : big_reward_small_prob
+Message                 : Game solved
+number of states        : 7
+number of transitions   : 10
+n iterations reach      : 4
+n iterations rew        : 3
+Reachability strategies : [['beta'], None, None, None, None, None, None]
+Final strategies        : [['beta'], None, None, None, None, None, None]
+Are equal               : True
+Probabilities           : [0.99, 0.01, 0.99, 1, 0, 1, 1]
+Rewards                 : [1.0, 0, 1.0, 0, 0, 1, 0]
+Total time              : 0.0003666877746582031
+================================================================================================================================================================
+Running example         : diferencia_lexicografico
+Message                 : Game solved
+number of states        : 7
+number of transitions   : 11
+n iterations reach      : 4
+n iterations rew        : 3
+Reachability strategies : [['alfa', 'beta'], ['delta'], ['epsilon'], None, None, None, None]
+Final strategies        : [['beta'], ['gamma'], ['epsilon'], None, None, None, None]
+Are equal               : False
+Probabilities           : [0.3, 0.3, 0.3, 0.35, 0.3, 1, 0]
+Rewards                 : [12.0, 7.0, 12.0, 2.0, 10.0, 0, 0]
+Total time              : 0.0001270771026611328
+================================================================================================================================================================
+Running example         : necesidad_de_rho
+Message                 : Game solved
+number of states        : 7
+number of transitions   : 11
+n iterations reach      : 4
+n iterations rew        : 3
+Reachability strategies : [['alfa'], None, None, ['gamma'], None, None, None]
+Final strategies        : [['beta'], None, None, ['gamma'], None, None, None]
+Are equal               : False
+Probabilities           : [0.5, 0.75, 0.5, 1, 0, 1, 0]
+Rewards                 : [1.0, 1.0, 100.0, 1, 0, 0, 0]
+Total time              : 0.00010204315185546875
+================================================================================================================================================================
+    Running example         : condicionadavssincondicionfull
+    Message                 : Game solved
+number of states        : 12
+number of transitions   : 17
+n iterations reach      : 4
+n iterations rew        : 2
+Reachability strategies : [['gamma', 'delta'], ['alfa'], [' '], [' '], [' '], None, None, None, None, None, None, None]
+Final strategies        : [['delta'], ['beta'], [' '], [' '], [' '], None, None, None, None, None, None, None]
+Are equal               : False
+Probabilities           : [0.5, 0.5, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1]
+Rewards                 : [1.8333333333333333, 1.6666666666666667, 2.0, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0]
+Total time              : 0.00014901161193847656
+================================================================================================================================================================
+Running example         : condicionadavssincondicionfull_reversed_players
+Message                 : Game solved
+number of states        : 13
+number of transitions   : 18
+n iterations reach      : 5
+n iterations rew        : 3
+Reachability strategies : [['delta'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Final strategies        : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Are equal               : False
+Probabilities           : [0.5, 0.75, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1, 0]
+Rewards                 : [1.6666666666666667, 1.6666666666666667, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Total time              : 0.00016808509826660156
+================================================================================================================================================================
+Running example         : condicionadavssincondicionfull_all_player_one
+Message                 : Game solved
+number of states        : 13
+number of transitions   : 18
+n iterations reach      : 5
+n iterations rew        : 3
+Reachability strategies : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Final strategies        : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Are equal               : True
+Probabilities           : [0.75, 0.75, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1, 0]
+Rewards                 : [1.6666666666666667, 1.6666666666666667, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Total time              : 0.0001590251922607422
+================================================================================================================================================================
+Running example         : condicionadavssincondicionfull_all_player_one_same_probs
+Message                 : Game solved
+number of states        : 13
+number of transitions   : 18
+n iterations reach      : 4
+n iterations rew        : 3
+Reachability strategies : [['gamma', 'delta'], ['alfa', 'beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Final strategies        : [['gamma'], ['alfa'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
+Are equal               : False
+Probabilities           : [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0]
+Rewards                 : [2, 2, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Total time              : 0.0001571178436279297
+================================================================================================================================================================
+Running example         : ejemplo_complejo_condicionada
+Message                 : Game solved
+number of states        : 10
+number of transitions   : 23
+n iterations reach      : 22
+n iterations rew        : 27
+Reachability strategies : [['alfa_1'], None, ['gamma_1'], ['beta_1'], None, None, None, None, None, None]
+Final strategies        : [['alfa_1'], None, ['gamma_2'], ['beta_1'], None, None, None, None, None, None]
+Are equal               : False
+Probabilities           : [0.7999993635582199, 0.79999968487657, 0.7999993261668595, 0.8999998315417149, 0.79999968177911, 0.8399997978500578, 0.8999999204447775, 0.779999966308343, 0, 1]
+Rewards                 : [18.789061858721617, 8.789062150412496, 7.499999999999016, 7.539062336379362, 10.438367699289788, 2.499999999999672, 2.5390624133407584, 0, 0, 0]
+Total time              : 0.0007588863372802734
+================================================================================================================================================================
+Running example         : condicionadavssincondicionsimple
+Message                 : Game solved
+number of states        : 8
+number of transitions   : 11
+n iterations reach      : 4
+n iterations rew        : 2
+Reachability strategies : [['beta'], [' '], [' '], None, None, None, None, None]
+Final strategies        : [['beta'], [], [' '], None, None, None, None, None]
+Are equal               : False
+Probabilities           : [0.75, 0.5, 0.75, 0.5, 0.75, 0, 1, 0]
+Rewards                 : [1.6666666666666667, 0, 1.6666666666666667, 0, 0.0, 0, 0, 0]
+Total time              : 9.799003601074219e-05
