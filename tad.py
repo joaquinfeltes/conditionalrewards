@@ -9,6 +9,8 @@ ACTION = 0
 PROBABILITY = 0
 NEXT_STATE_IDX = 1
 
+# 1 TODO: calcular las cosas que nos faltan en la tabla 1 (esto puede hacer fallar los tests tambien )
+# 2 TODO: fallan los tests,pq agregué output nuevos, solo tengo que agregar lo nuevo
 
 class StochasticGame:
     """
@@ -155,6 +157,8 @@ class Node:
         self.reach_probability_next = 0
         self.expected_rewards = reward
         self.expected_rewards_next = 0
+        self.expected_rewards_min_reach = reward
+        self.expected_reach_min_rewards = 0
         self.num_states = num_states
         self.check_next_states()
 
@@ -460,6 +464,7 @@ class Solver:
         logging.debug(f"iteration {i}")
         for state in self.state_list:
             logging.debug(f"{state.idx} {state.reach_probability}")
+            state.expected_reach_min_rewards = state.reach_probability
         logging.debug("-"*80)
 
         if self.state_list[0].reach_probability == 0 and prune_states:
