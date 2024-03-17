@@ -9,8 +9,10 @@ Reachability strategies : [['beta'], None, None, None, None, None, None]
 Final strategies        : [['beta'], None, None, None, None, None, None]
 Are equal               : True
 Probabilities           : [0.99, 0.01, 0.99, 1, 0, 1, 1]
+Probabilities min rew   : [0, 0, 0, 0, 0, 0, 0]
 Rewards                 : [1.0, 0, 1.0, 0, 0, 1, 0]
-Total time              : 0.0003666877746582031
+Rewards min reach       : [1.0, 0, 1.0, 0, 0, 1, 0]
+Total time              : 0.0008900165557861328
 ================================================================================================================================================================
 Running example         : diferencia_lexicografico
 Message                 : Game solved
@@ -22,8 +24,10 @@ Reachability strategies : [['alfa', 'beta'], ['delta'], ['epsilon'], None, None,
 Final strategies        : [['beta'], ['gamma'], ['epsilon'], None, None, None, None]
 Are equal               : False
 Probabilities           : [0.3, 0.3, 0.3, 0.35, 0.3, 1, 0]
+Probabilities min rew   : [0, 0, 0, 0, 0, 0, 0]
 Rewards                 : [12.0, 7.0, 12.0, 2.0, 10.0, 0, 0]
-Total time              : 0.0001270771026611328
+Rewards min reach       : [12.0, 15.0, 12.0, 2.0, 10.0, 0, 0]
+Total time              : 0.00013327598571777344
 ================================================================================================================================================================
 Running example         : necesidad_de_rho
 Message                 : Game solved
@@ -35,11 +39,13 @@ Reachability strategies : [['alfa'], None, None, ['gamma'], None, None, None]
 Final strategies        : [['beta'], None, None, ['gamma'], None, None, None]
 Are equal               : False
 Probabilities           : [0.5, 0.75, 0.5, 1, 0, 1, 0]
+Probabilities min rew   : [0, 0, 0, 0, 0, 0, 0]
 Rewards                 : [1.0, 1.0, 100.0, 1, 0, 0, 0]
-Total time              : 0.00010204315185546875
+Rewards min reach       : [100.0, 1.0, 100.0, 1, 0, 0, 0]
+Total time              : 0.00010180473327636719
 ================================================================================================================================================================
-    Running example         : condicionadavssincondicionfull
-    Message                 : Game solved
+Running example         : condicionadavssincondicionfull
+Message                 : Game solved
 number of states        : 12
 number of transitions   : 17
 n iterations reach      : 4
@@ -48,8 +54,10 @@ Reachability strategies : [['gamma', 'delta'], ['alfa'], [' '], [' '], [' '], No
 Final strategies        : [['delta'], ['beta'], [' '], [' '], [' '], None, None, None, None, None, None, None]
 Are equal               : False
 Probabilities           : [0.5, 0.5, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1]
+Probabilities min rew   : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 Rewards                 : [1.8333333333333333, 1.6666666666666667, 2.0, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0]
-Total time              : 0.00014901161193847656
+Rewards min reach       : [1.8333333333333333, 2, 2.0, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0]
+Total time              : 0.00014972686767578125
 ================================================================================================================================================================
 Running example         : condicionadavssincondicionfull_reversed_players
 Message                 : Game solved
@@ -61,8 +69,10 @@ Reachability strategies : [['delta'], ['beta'], ['x'], ['y'], ['z'], None, None,
 Final strategies        : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
 Are equal               : False
 Probabilities           : [0.5, 0.75, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1, 0]
-Rewards                 : [1.6666666666666667, 1.6666666666666667, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
-Total time              : 0.00016808509826660156
+Probabilities min rew   : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Rewards                 : [1.6666666666666667, 1.6666666666666667, 2.0, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Rewards min reach       : [1.8333333333333333, 1.6666666666666667, 2.0, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Total time              : 0.00016498565673828125
 ================================================================================================================================================================
 Running example         : condicionadavssincondicionfull_all_player_one
 Message                 : Game solved
@@ -74,8 +84,10 @@ Reachability strategies : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None,
 Final strategies        : [['gamma'], ['beta'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
 Are equal               : True
 Probabilities           : [0.75, 0.75, 0.5, 0.75, 0.5, 0.5, 0.75, 0.5, 0, 1, 0, 1, 0]
-Rewards                 : [1.6666666666666667, 1.6666666666666667, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
-Total time              : 0.0001590251922607422
+Probabilities min rew   : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Rewards                 : [1.6666666666666667, 1.6666666666666667, 2.0, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Rewards min reach       : [1.6666666666666667, 1.6666666666666667, 2.0, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Total time              : 0.00015401840209960938
 ================================================================================================================================================================
 Running example         : condicionadavssincondicionfull_all_player_one_same_probs
 Message                 : Game solved
@@ -87,8 +99,10 @@ Reachability strategies : [['gamma', 'delta'], ['alfa', 'beta'], ['x'], ['y'], [
 Final strategies        : [['gamma'], ['alfa'], ['x'], ['y'], ['z'], None, None, None, None, None, None, None, None]
 Are equal               : False
 Probabilities           : [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0, 1, 0, 1, 0]
-Rewards                 : [2, 2, 2, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
-Total time              : 0.0001571178436279297
+Probabilities min rew   : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+Rewards                 : [2, 2.0, 2.0, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Rewards min reach       : [2, 2.0, 2.0, 1.6666666666666667, 1.8333333333333333, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0]
+Total time              : 0.00014591217041015625
 ================================================================================================================================================================
 Running example         : ejemplo_complejo_condicionada
 Message                 : Game solved
@@ -100,8 +114,10 @@ Reachability strategies : [['alfa_1'], None, ['gamma_1'], ['beta_1'], None, None
 Final strategies        : [['alfa_1'], None, ['gamma_2'], ['beta_1'], None, None, None, None, None, None]
 Are equal               : False
 Probabilities           : [0.7999993635582199, 0.79999968487657, 0.7999993261668595, 0.8999998315417149, 0.79999968177911, 0.8399997978500578, 0.8999999204447775, 0.779999966308343, 0, 1]
+Probabilities min rew   : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 Rewards                 : [18.789061858721617, 8.789062150412496, 7.499999999999016, 7.539062336379362, 10.438367699289788, 2.499999999999672, 2.5390624133407584, 0, 0, 0]
-Total time              : 0.0007588863372802734
+Rewards min reach       : [18.789061858721617, 8.789062150412496, 15.438367382892935, 7.539062336379362, 10.438367699289788, 5.146122460964311, 2.5390624133407584, 0, 0, 0]
+Total time              : 0.0007379055023193359
 ================================================================================================================================================================
 Running example         : condicionadavssincondicionsimple
 Message                 : Game solved
@@ -113,5 +129,7 @@ Reachability strategies : [['beta'], [' '], [' '], None, None, None, None, None]
 Final strategies        : [['beta'], [], [' '], None, None, None, None, None]
 Are equal               : False
 Probabilities           : [0.75, 0.5, 0.75, 0.5, 0.75, 0, 1, 0]
+Probabilities min rew   : [0, 0, 0, 0, 0, 0, 0, 0]
 Rewards                 : [1.6666666666666667, 0, 1.6666666666666667, 0, 0.0, 0, 0, 0]
-Total time              : 9.799003601074219e-05
+Rewards min reach       : [1.6666666666666667, 0, 1.6666666666666667, 0, 0.0, 0, 0, 0]
+Total time              : 9.012222290039062e-05

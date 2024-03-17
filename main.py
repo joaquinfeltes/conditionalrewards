@@ -24,7 +24,9 @@ def save_results_to_file(game_resuts, file_name):
             file.write(f"Final strategies        : {final_strategies}\n")
             file.write(f"Are equal               : {reachability_strategies == final_strategies}\n")
             file.write(f"Probabilities           : {game['probabilities']}\n")
+            file.write(f"Probabilities min rew   : {game['prob_min_rew']}\n")
             file.write(f"Rewards                 : {game['rewards']}\n")
+            file.write(f"Rewards min reach       : {game['rew_min_reach']}\n")
             file.write(f"Total time              : {total_time}\n")
 
 
@@ -62,7 +64,7 @@ def run_games(games_dict):
         sgame = StochasticGame(**game_copy)
         n_transitions = sgame.count_transitions()
         try:
-            final_strategies, reachability_strategies, rewards, probabilities, iterations_reach, iterations_rew = sgame.solve()
+            final_strategies, reachability_strategies, rewards, probabilities, iterations_reach, iterations_rew, reach_min_rewards, rewards_min_reach = sgame.solve()
             msg = "Game solved"
         except ValueError as e:
             logging.error(f"Error while solving the game: {e}")
@@ -75,7 +77,9 @@ def run_games(games_dict):
         logging.info(f"Final strategies       : {final_strategies}")
         logging.info(f"Are equal              : {reachability_strategies == final_strategies}")
         logging.info(f"Rewards                : {rewards}")
+        logging.info(f"Rewards min reach      : {rewards_min_reach}")
         logging.info(f"Probabilities          : {probabilities}")
+        logging.info(f"Probabilities min rew  : {reach_min_rewards}")
         logging.info(f"Total time             : {total_time}")
 
         game_results[name] = {
@@ -88,7 +92,9 @@ def run_games(games_dict):
             "total_time": total_time,
             "msg": msg,
             "rewards": rewards,
+            "rew_min_reach": rewards_min_reach,
             "probabilities": probabilities,
+            "prob_min_rew": reach_min_rewards
         }
     return game_results
 

@@ -131,9 +131,11 @@ class StochasticGame:
         logging.info("Solving total rewards ...")
         final_strategies, n_iterations_rew = solver.solve_total_rewards()
         rewards = [state.expected_rewards for state in state_list]
-
+        expected_reach_min_rewards = [0] * self.num_states # TODO HACER ESTE
+        expected_rewards_min_reach = [state.expected_rewards_min_reach for state in state_list]
+        
         logging.info("Done!")
-        return final_strategies, reachability_strategies, rewards, probabilities, n_iterations_reach, n_iterations_rew
+        return final_strategies, reachability_strategies, rewards, probabilities, n_iterations_reach, n_iterations_rew, expected_reach_min_rewards, expected_rewards_min_reach
 
 
 class Node:
@@ -154,9 +156,8 @@ class Node:
         self.next_states = next_states
         self.is_final_node = is_final_node
         self.reach_probability = 1 if is_final_node else 0
-        self.reach_probability_next = 0
+        # reach_probability_next can be a variable of the value iteration function, its not neccessary in the class
         self.expected_rewards = reward
-        self.expected_rewards_next = 0
         self.expected_rewards_min_reach = reward
         self.expected_reach_min_rewards = 0
         self.num_states = num_states
@@ -215,6 +216,22 @@ class ProbabilisticNode(Node):
             _next_state = state_list[next_state[NEXT_STATE_IDX]]
             value += _next_state.reach_probability * next_state[PROBABILITY]
         return value
+    
+
+    # TODO: CORRER ESTA ITERACION DESPUES DE TENER LAS ESTRATEGIAS DE RECOMPENSA
+    # TODO: CORRER ESTA ITERACION DESPUES DE TENER LAS ESTRATEGIAS DE RECOMPENSA
+    # TODO: CORRER ESTA ITERACION DESPUES DE TENER LAS ESTRATEGIAS DE RECOMPENSA
+    # TODO: CORRER ESTA ITERACION DESPUES DE TENER LAS ESTRATEGIAS DE RECOMPENSA
+    # creo que debería iterar por todo de nuevo, para que se actualicen los valores,
+    # o sea seria otro value iteration, pero para una MC porque la estrategia está fija, solo quiero calcular el valor
+    # def _iteration_reach_min_rewards(self, state_list):
+    #     """ QUE LE ENTRE LA ESTRATEGIA, CUANDO YA ESTA TERMINADO EL ALGORITMO
+    #     """
+    #     value = 0
+    #     for next_state in self.next_states:
+    #         _next_state = state_list[next_state[NEXT_STATE_IDX]]
+    #         value += _next_state.expected_reach_min_rewards * next_state[PROBABILITY]
+    #     return value
 
     def value_iteration_rewards(self, state_list):
         """
@@ -224,13 +241,16 @@ class ProbabilisticNode(Node):
             plus the reward of the current state.
         """
         if not self.next_states:
-            return 0
+            return 0, 0
         value = 0
+        expected_rewards_min_reach = 0
         for next_state in self.next_states:
             _next_state = state_list[next_state[NEXT_STATE_IDX]]
             value += _next_state.expected_rewards * next_state[PROBABILITY]
+            expected_rewards_min_reach += _next_state.expected_rewards_min_reach * next_state[PROBABILITY]
         value += self.reward
-        return value
+        expected_rewards_min_reach += self.reward
+        return value, expected_rewards_min_reach
 
     def prune_paths(self, state_list):
         """
@@ -271,6 +291,17 @@ class PlayerOne(Node):
                 max_reach_prob = next_state_reach_prob
         return max_reach_prob
 
+
+# creo que debería iterar por todo de nuevo, para que se actualicen los valores,
+    # o sea seria otro value iteration, pero para una MC porque la estrategia está fija, solo quiero calcular el valor
+    # def _iteration_reach_min_rewards(self, state_list, action):
+    #     """ QUE LE ENTRE LA ESTRATEGIA, CUANDO YA ESTA TERMINADO EL ALGORITMO
+    #     """
+    #     next_state = [ns for ns in self.next_states if ns[ACTION] == action][0]
+    #     next_state_reach_prob = state_list[next_state[NEXT_STATE_IDX]].expected_reach_min_rewards
+    #     return next_state_reach_prob
+
+
     def value_iteration_rewards(self, state_list):
         """
             A step of the value iteration algorithm for total rewards.
@@ -278,14 +309,16 @@ class PlayerOne(Node):
             If there are no next states, it returns 0.
         """
         if not self.next_states:
-            return 0
+            return 0, 0
         max_rewards = 0
         for next_state in self.next_states:
             next_state_exp_rewards = state_list[next_state[NEXT_STATE_IDX]].expected_rewards
-            if next_state_exp_rewards > max_rewards:
+            if next_state_exp_rewards >= max_rewards:
                 max_rewards = next_state_exp_rewards
+                max_next_state = next_state
         max_rewards += self.reward
-        return max_rewards
+        expected_rewards_min_reach = state_list[max_next_state[NEXT_STATE_IDX]].expected_rewards_min_reach + self.reward
+        return max_rewards, expected_rewards_min_reach
 
     def get_best_strategies_reachability(self, state_list, floor):
         """
@@ -361,6 +394,33 @@ class PlayerTwo(Node):
                 min_reach_prob = next_state_reach_prob
         return min_reach_prob
 
+# creo que debería iterar por todo de nuevo, para que se actualicen los valores,
+    # o sea seria otro value iteration, pero para una MC porque la estrategia está fija, solo quiero calcular el valor
+    # def _iteration_reach_min_rewards(self, state_list, strategies):
+    #     """ QUE LE ENTRE LA ESTRATEGIA, CUANDO YA ESTA TERMINADO EL ALGORITMO
+    #     """
+    # # PUEDEN HABER VARIAS ESTRATEGIAS QUE MINIMIZAN LA RECOMPENSA
+    #     next_state = [ns for ns in self.next_states if ns[ACTION] == action]
+    #     next_state_reach_prob = state_list[next_state[NEXT_STATE_IDX]].expected_reach_min_rewards
+    #     return next_state_reach_prob
+
+    def _expected_rewards_min_reach(self, state_list, strategies):
+        """
+            Returns the expected rewards conditioned on the reachability objectives.
+        """
+        if not strategies:
+            return 0
+        first_n_state = [next_state for next_state in self.next_states if next_state[ACTION] in strategies][0]
+        min_rewards = state_list[first_n_state[NEXT_STATE_IDX]].expected_rewards_min_reach
+        for next_state in self.next_states:
+            if next_state[ACTION] in strategies:
+                next_state_exp_rewards = state_list[next_state[NEXT_STATE_IDX]].expected_rewards_min_reach
+                if next_state_exp_rewards < min_rewards:
+                    min_rewards = next_state_exp_rewards
+        min_rewards += self.reward
+        return min_rewards
+
+
     def value_iteration_rewards(self, state_list):
         """
             A step of the value iteration algorithm for total rewards.
@@ -368,7 +428,9 @@ class PlayerTwo(Node):
             If there are no next states, it returns 0.
         """
         if not self.next_states:
-            return 0
+            return 0, 0
+        reachability_strategies = self.get_worst_strategies_reachability(state_list, 6)
+        expected_rewards_min_reach = self._expected_rewards_min_reach(state_list, reachability_strategies)
         # init min value with the value of the first state
         min_rewards = state_list[self.next_states[0][NEXT_STATE_IDX]].expected_rewards
         for next_state in self.next_states:
@@ -376,7 +438,7 @@ class PlayerTwo(Node):
             if next_state_exp_rewards < min_rewards:
                 min_rewards = next_state_exp_rewards
         min_rewards += self.reward
-        return min_rewards
+        return min_rewards, expected_rewards_min_reach
     
     def get_worst_strategies_reachability(self, state_list, floor):
         """
@@ -451,13 +513,12 @@ class Solver:
             max_diff = 0
             for state_idx in states_reaching_final:
                 state = self.state_list[state_idx]
-                state.reach_probability_next = state.value_iteration_reach(self.state_list)
-                current_diff = abs(self.state_list[state_idx].reach_probability_next - self.state_list[state_idx].reach_probability)
+                reach_probability_next = state.value_iteration_reach(self.state_list)
+                current_diff = abs(reach_probability_next - state.reach_probability)
                 if current_diff > max_diff:
                     max_diff = current_diff
-                state = self.state_list[state_idx]
                 logging.debug(f"{state.idx} {state.reach_probability}")
-                state.reach_probability = state.reach_probability_next
+                state.reach_probability = reach_probability_next
             diff = max_diff
 
             logging.debug("-"*80)
@@ -556,17 +617,23 @@ class Solver:
         logging.debug("Value iteration for total rewards:")
         logging.debug("-"*80)
         i = 0
+        # import ipdb; ipdb.set_trace()
         while diff > self.threshold:
             logging.debug(f"iteration {i}")
             i += 1
             max_diff = 0
             for state in self.state_list:
-                state.expected_rewards_next = state.value_iteration_rewards(self.state_list)
-                current_diff = abs(state.expected_rewards_next - state.expected_rewards)
+                expected_rewards_next, expected_rewards_min_reach = state.value_iteration_rewards(self.state_list)
+                current_diff_expected_rew = abs(expected_rewards_next - state.expected_rewards)
+                current_diff_min_reach = abs(expected_rewards_min_reach - state.expected_rewards_min_reach)
+                current_diff = max(current_diff_expected_rew, current_diff_min_reach)
                 if current_diff > max_diff:
-                        max_diff = current_diff
+                        max_diff = current_diff    
                 logging.debug(f"{state.idx} {state.expected_rewards}")
-                state.expected_rewards = state.expected_rewards_next
+            # for state in self.state_list: #ACABO DE METER ESTO, QUE DEBERIA ACTUALIZAR EL 
+                #VECTOR DESPUES DE TERMINAR UNA ITER, PERO VEMO
+                state.expected_rewards = expected_rewards_next
+                state.expected_rewards_min_reach = expected_rewards_min_reach
             logging.debug("-"*80)
             diff = max_diff
 
