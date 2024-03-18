@@ -21,19 +21,28 @@ def gen_rnd_board(seed, length, width, prob_loose_tile, max_reward=6, force_down
     # construct the board
     random.seed(seed)
     for i in range(length):
-        moves.append([])
         rewards.append([])
         loose_tiles.append([])
-        for j in range(width):
-            moves[i].append(random.randrange(0, move_max))
+        for _ in range(width):
             rewards[i].append(math.floor(
                 -math.log(
                     1.0/2.0**(max_reward+1) +
                     random.random()*(1.0-1.0/2.0**(max_reward+1)))/math.log(2.0)))
             loose_tiles[i].append(1 if random.random() < prob_loose_tile else 0)
-
+    moves = get_random_moves(length, width, force_down)
     return moves, rewards, loose_tiles
 
+def get_random_moves(length, width, force_down):
+    moves = []
+    for i in range(length):
+        if force_down:
+            moves.append(random.choices([0, 1, 2, 3], [0.1, 0.5, 0.1, 0.3], k=width))
+            # force one of the moves to be down for each row
+            move_down = random.randrange(0, width)
+            moves[i][move_down] = 3
+        else:
+            moves.append(random.choices([0, 1, 2], [0.2, 0.6, 0.2], k=width))
+    return moves
 
 def player_two_transitions(length, width, moves, offset_r, offset_y):
     transition_list = []
@@ -497,7 +506,7 @@ def init_parser():
                       " in the interval (0,1) (default = 0.1)\n"
     prob_light_help = "  Sets the failure probability of the light to PROB_LIGHT_BREAK." + \
                       " PROB_LIGHT_BREAK must be a float" + \
-                      " in the interval (0,1) (default = 0.05)\n"
+                      " in the interval (0,1) (default = 0.1)\n"
     prob_loose_tile_help = "  Sets the probability of a tile being loose to PROB_LOOSE_TILE." + \
                            " PROB_LOOSE_TILE must be a float" + \
                            " in the interval (0,1) (default = 0.3)\n"
@@ -512,7 +521,7 @@ def init_parser():
     parser.add_argument('--length', '-l', type=int, required=False, default=3, help=length_help)
     parser.add_argument('--prob_robot_break', '-p', type=float, required=False, default=0.1,
                         help=prob_robot_help)
-    parser.add_argument('--prob_light_break', '-q', type=float, required=False, default=0.05,
+    parser.add_argument('--prob_light_break', '-q', type=float, required=False, default=0.1,
                         help=prob_light_help)
     parser.add_argument('--prob_tile_break', '-r', type=float, required=False, default=0.1,
                         help=prob_tile_break_help)
